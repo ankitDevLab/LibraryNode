@@ -1,40 +1,30 @@
-import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import API from "../api/axios";
 import { Html5QrcodeScanner } from "html5-qrcode";
 
 function AttendanceScanner() {
   const [attendance, setAttendance] = useState(null);
   const [error, setError] = useState("");
 
-  const scannerRef = useRef(null);
-  const scanningRef = useRef(false);
-
   useEffect(() => {
-    scannerRef.current = new Html5QrcodeScanner(
+    const scanner = new Html5QrcodeScanner(
       "reader",
       {
         fps: 10,
-        qrbox: {
-          width: 250,
-          height: 250,
-        },
+        qrbox: { width: 250, height: 250 },
       },
       false
     );
 
-    scannerRef.current.render(
+    scanner.render(
       async (decodedText) => {
-        if (scanningRef.current) return;
-
-        scanningRef.current = true;
-
         try {
           const qrData = JSON.parse(decodedText);
 
           console.log("QR DATA:", qrData);
-
-          const response = await axios.post(
-            "http://localhost:5000/api/attendance",
+          
+          const response = await API.post(
+            "/attendance",
             {
               studentId: qrData.studentId,
               libraryId: qrData.libraryId,
@@ -44,18 +34,12 @@ function AttendanceScanner() {
             }
           );
 
-          console.log(response.data);
-
           setAttendance(response.data);
           setError("");
 
           alert("Attendance Marked Successfully ✅");
 
-          // Allow next scan after 3 seconds
-          setTimeout(() => {
-            scanningRef.current = false;
-          }, 3000);
-
+          scanner.clear();
         } catch (err) {
           console.error(err);
 
@@ -63,27 +47,19 @@ function AttendanceScanner() {
             err.response?.data?.message ||
               "Failed to mark attendance"
           );
-
-          scanningRef.current = false;
         }
       },
-      () => {
-        // Ignore scan failures
-      }
+      () => {}
     );
 
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current
-          .clear()
-          .catch(() => {});
-      }
+      scanner.clear().catch(() => {});
     };
   }, []);
 
   return (
     <div className="min-h-screen bg-slate-100 p-5">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow p-8">
+      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow">
 
         <h1 className="text-3xl font-bold mb-6">
           Attendance Scanner
@@ -91,8 +67,8 @@ function AttendanceScanner() {
 
         <div
           id="reader"
-          className="w-full"
           style={{
+            width: "100%",
             minHeight: "400px",
           }}
         />
@@ -104,7 +80,7 @@ function AttendanceScanner() {
               Attendance Marked ✅
             </h2>
 
-            <p className="mt-2">
+            <p className="mt-3">
               Student attendance saved successfully.
             </p>
 
@@ -118,9 +94,7 @@ function AttendanceScanner() {
               Error ❌
             </h2>
 
-            <p className="mt-2">
-              {error}
-            </p>
+            <p className="mt-2">{error}</p>
 
           </div>
         )}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/axios";
 
 function AvailableSeats() {
   const navigate = useNavigate();
@@ -18,9 +18,9 @@ function AvailableSeats() {
 
   const fetchSeats = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/seats/${state.libraryId}`
-      );
+        const response = await API.get(
+          `/seats/${state.libraryId}`
+        );
 
       setSeats(response.data.seats);
     } catch (error) {

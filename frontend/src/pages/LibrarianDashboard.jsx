@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/axios";
 import { useEffect } from "react";
 function LibrarianDashboard() {
 const [requests, setRequests] = useState([]);
@@ -11,9 +11,9 @@ const [requests, setRequests] = useState([]);
     const libraryId =
       localStorage.getItem("libraryId");
 
-      const response = await axios.get(
-            `http://localhost:5000/api/seats/${libraryId}`
-          );
+      const response = await API.get(
+        `/seats/${libraryId}`
+      );
 
           setLibrarySeats(response.data.seats);
 
@@ -35,9 +35,9 @@ useEffect(() => {
 
 const fetchBookings = async () => {
   try {
-    const response = await axios.get(
-      "http://localhost:5000/api/bookings"
-    );
+  const response = await API.get(
+        "/bookings"
+      );
 
     const libraryId =
   localStorage.getItem("libraryId");

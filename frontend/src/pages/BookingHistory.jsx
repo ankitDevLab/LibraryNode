@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
 function BookingHistory() {
@@ -18,8 +18,8 @@ function BookingHistory() {
         localStorage.getItem("studentProfile")
       );
 
-      const response = await axios.get(
-        "http://localhost:5000/api/bookings"
+      const response = await API.get(
+        "/bookings"
       );
 
       const myBookings = response.data.bookings.filter(

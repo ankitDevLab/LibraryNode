@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/axios";
 
 function StudentLogin() {
   const navigate = useNavigate();
@@ -9,8 +9,8 @@ function StudentLogin() {
 
   const loginStudent = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/students/login",
+      const response = await API.post(
+        "/students/login",
         {
           mobile,
         }

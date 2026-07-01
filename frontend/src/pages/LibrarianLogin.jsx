@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/axios";
 
 function LibrarianLogin() {
   const navigate = useNavigate();
@@ -13,8 +13,8 @@ function LibrarianLogin() {
     try {
       setErrorMessage("");
 
-      const response = await axios.post(
-        "http://localhost:5000/api/librarians/login",
+      const response = await API.post(
+        "/librarians/login",
         {
           email,
           password,

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/axios";
 function BookingStatus() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -20,8 +20,8 @@ useEffect(() => {
 
       if (!booking) return;
       console.log("BOOKING OBJECT:", booking);
-      const response = await axios.post(
-  "http://localhost:5000/api/bookings",
+  const response = await API.get(
+  "/bookings",
   {
     studentId: booking.studentId,
     libraryId: booking.libraryId,

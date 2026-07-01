@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/axios";
 function StudentRegister() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -20,8 +20,8 @@ function StudentRegister() {
     // This must match upload.single("photo") in the backend
     formData.append("photo", file);
 
-    const response = await axios.post(
-      "http://localhost:5000/api/upload",
+    const response = await API.post(
+      "/upload",
       formData,
       {
         headers: {
@@ -48,8 +48,8 @@ function StudentRegister() {
 
     setLoading(true);
 
-    const response = await axios.post(
-      "http://localhost:5000/api/students",
+    const response = await API.post(
+      "/students",
       {
         name,
         mobile,

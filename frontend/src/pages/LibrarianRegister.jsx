@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/axios";
 function LibrarianRegister() {
     const navigate = useNavigate();
     const [libraryPhoto, setLibraryPhoto] = useState("");
@@ -33,16 +33,16 @@ const createLibrary = async () => {
     }
 
     setLoading(true);  
-    const response = await axios.post(
-  "http://localhost:5000/api/libraries",
-  {
-    name: libraryName,
-    state: stateName,
-    district,
-    city,
-    address,
-    mobile,
-    totalSeats: Number(totalSeats),
+    const response = await API.post(
+      "/libraries",
+      {
+        name: libraryName,
+        state: stateName,
+        district,
+        city,
+        address,
+        mobile,
+        totalSeats: Number(totalSeats),
 
     slot1Price: Number(slot1Price),
     slot2Price: Number(slot2Price),
@@ -51,8 +51,8 @@ const createLibrary = async () => {
   }
 );
 
-const librarianResponse = await axios.post(
-  "http://localhost:5000/api/librarians/register",
+const librarianResponse = await API.post(
+  "/librarians/register",
   {
     ownerName,
     email,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import API from "../api/axios";
 
 function LibraryDetails() {
   const navigate = useNavigate();
@@ -21,8 +21,8 @@ useEffect(() => {
 
 const fetchLibrary = async () => {
   try {
-    const response = await axios.get(
-      "http://localhost:5000/api/libraries"
+    const response = await API.get(
+      "/libraries"
     );
 
     console.log("URL ID:", id);
