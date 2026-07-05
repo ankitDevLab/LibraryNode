@@ -13,13 +13,10 @@ function LibrarianLogin() {
     try {
       setErrorMessage("");
 
-      const response = await API.post(
-        "/librarians/login",
-        {
-          email,
-          password,
-        }
-      );
+      const response = await API.post("/librarians/login", {
+        email,
+        password,
+      });
 
       localStorage.setItem(
         "librarian",
@@ -43,13 +40,10 @@ function LibrarianLogin() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100 p-5">
-
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-
+        {/* Logo */}
         <div className="flex items-center justify-center mb-8">
-
           <div className="flex items-center gap-3">
-
             <img
               src="/logo.png"
               alt="LibrarySphere"
@@ -60,14 +54,11 @@ function LibrarianLogin() {
               <h1 className="text-2xl font-bold text-blue-600">
                 LibrarySphere
               </h1>
-
               <p className="text-sm text-slate-500">
                 Library Booking Platform
               </p>
             </div>
-
           </div>
-
         </div>
 
         <h2 className="text-3xl font-bold text-center mb-6">
@@ -97,29 +88,11 @@ function LibrarianLogin() {
           Login
         </button>
 
-        <div className="mt-6 border border-red-200 bg-red-50 rounded-2xl p-5">
-
-          <div className="flex items-start gap-3">
-            <p>If You want to Ragister your Library</p>
-              <a
-              href="https://wa.me/917520960847"
-              target="_blank"
-              rel="noreferrer"
-              className="mt-5 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition"
-            >
-              💬 Contact on WhatsApp
-            </a>
-          </div>
-
-        </div>
+        {/* Error Message */}
         {errorMessage && (
           <div className="mt-6 border border-red-200 bg-red-50 rounded-2xl p-5">
-
             <div className="flex items-start gap-3">
-
-              <div className="text-3xl">
-                🚫
-              </div>
+              <div className="text-3xl">🚫</div>
 
               <div>
                 <h3 className="text-lg font-bold text-red-700">
@@ -130,7 +103,6 @@ function LibrarianLogin() {
                   {errorMessage}
                 </p>
               </div>
-
             </div>
 
             <a
@@ -141,11 +113,6 @@ function LibrarianLogin() {
             >
               💬 Contact on WhatsApp
             </a>
-
-            {/* <p className="text-center text-sm text-gray-500 mt-2">
-              +91 7520960847
-            </p> */}
-
           </div>
         )}
 
@@ -153,8 +120,19 @@ function LibrarianLogin() {
           Only authorized librarians can access the dashboard.
         </p>
 
+        {/* Register Library Box */}
+        <div className="mt-6 border border-blue-200 bg-blue-50 rounded-2xl p-5">
+          <a
+            href="https://wa.me/917520960847"
+            target="_blank"
+            rel="noreferrer"
+            className="flex flex-col items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition text-center"
+          >
+            <span>💬 Contact on WhatsApp</span>
+            <span>If you want to register your library</span>
+          </a>
+        </div>
       </div>
-
     </div>
   );
 }
