@@ -97,6 +97,21 @@ function LibrarianLogin() {
           Login
         </button>
 
+        <div className="mt-6 border border-red-200 bg-red-50 rounded-2xl p-5">
+
+          <div className="flex items-start gap-3">
+            <p>If You want to Ragister your Library</p>
+              <a
+              href="https://wa.me/917520960847"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-5 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition"
+            >
+              💬 Contact on WhatsApp
+            </a>
+          </div>
+
+        </div>
         {errorMessage && (
           <div className="mt-6 border border-red-200 bg-red-50 rounded-2xl p-5">
 
@@ -119,7 +134,7 @@ function LibrarianLogin() {
             </div>
 
             <a
-              href="https://wa.me/918207726364"
+              href="https://wa.me/917520960847"
               target="_blank"
               rel="noreferrer"
               className="mt-5 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition"
@@ -127,9 +142,9 @@ function LibrarianLogin() {
               💬 Contact on WhatsApp
             </a>
 
-            <p className="text-center text-sm text-gray-500 mt-2">
-              +91 8207726364
-            </p>
+            {/* <p className="text-center text-sm text-gray-500 mt-2">
+              +91 7520960847
+            </p> */}
 
           </div>
         )}
