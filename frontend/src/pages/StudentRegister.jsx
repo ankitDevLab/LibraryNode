@@ -42,8 +42,8 @@ function StudentRegister() {
 };
   const registerStudent = async () => {
   try {
-    if (!name || !mobile || !email) {
-      return alert("Please fill all required fields.");
+    if (!name || !mobile || !photo) {
+      return alert("Please fill the name,mobile and upload a photo.");
     }
 
     setLoading(true);
