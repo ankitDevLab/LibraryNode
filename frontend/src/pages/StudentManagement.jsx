@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 function StudentManagement() {
   const bookings =
     JSON.parse(localStorage.getItem("bookings")) || [];

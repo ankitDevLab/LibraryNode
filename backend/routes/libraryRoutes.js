@@ -2,24 +2,28 @@ const express = require("express");
 const router = express.Router();
 const Library = require("../models/Library");
 const Seat = require("../models/Seat");
+const asyncHandler = require("../utils/asyncHandler");
+
 // Create Library
-router.post("/", async (req, res) => {
-  try {
-    const library = await Library.create(req.body);
+router.post(
+  "/",
+  asyncHandler(async (req, res) => {
+    const totalSeats = Number(req.body.totalSeats);
 
-    const seats = [];
-
-    for (
-      let i = 1;
-      i <= Number(library.totalSeats);
-      i++
-    ) {
-      seats.push({
-        libraryId: library._id,
-        seatNumber: i,
-        status: "available",
+    if (!Number.isFinite(totalSeats) || totalSeats <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "totalSeats must be a positive number",
       });
     }
+
+    const library = await Library.create({ ...req.body, totalSeats });
+
+    const seats = Array.from({ length: totalSeats }, (_, i) => ({
+      libraryId: library._id,
+      seatNumber: i + 1,
+      status: "available",
+    }));
 
     await Seat.insertMany(seats);
 
@@ -27,29 +31,20 @@ router.post("/", async (req, res) => {
       success: true,
       library,
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+  })
+);
 
 // Get All Libraries
-router.get("/", async (req, res) => {
-  try {
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
     const libraries = await Library.find();
 
     res.json({
       success: true,
       libraries,
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+  })
+);
 
 module.exports = router;

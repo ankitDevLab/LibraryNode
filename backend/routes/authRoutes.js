@@ -3,14 +3,28 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const asyncHandler = require("../utils/asyncHandler");
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is not set in the environment");
+}
 
 // Register
-router.post("/register", async (req, res) => {
-  try {
+router.post(
+  "/register",
+  asyncHandler(async (req, res) => {
     const { name, email, password, role } = req.body;
 
-    const hashedPassword =
-      await bcrypt.hash(password, 10);
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already registered.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
@@ -19,25 +33,20 @@ router.post("/register", async (req, res) => {
       role,
     });
 
-    res.json({
+    res.status(201).json({
       success: true,
       user,
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+  })
+);
 
 // Login
-router.post("/login", async (req, res) => {
-  try {
+router.post(
+  "/login",
+  asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
-    const user =
-      await User.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
@@ -46,11 +55,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const match =
-      await bcrypt.compare(
-        password,
-        user.password
-      );
+    const match = await bcrypt.compare(password, user.password);
 
     if (!match) {
       return res.status(400).json({
@@ -60,14 +65,9 @@ router.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign(
-      {
-        id: user._id,
-        role: user.role,
-      },
-      "librarysphere-secret",
-      {
-        expiresIn: "7d",
-      }
+      { id: user._id, role: user.role },
+      JWT_SECRET,
+      { expiresIn: "7d" }
     );
 
     res.json({
@@ -75,12 +75,7 @@ router.post("/login", async (req, res) => {
       token,
       user,
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+  })
+);
 
 module.exports = router;

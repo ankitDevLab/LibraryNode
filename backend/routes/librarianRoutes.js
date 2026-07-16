@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcryptjs");
 
 const Librarian = require("../models/Librarian");
+const asyncHandler = require("../utils/asyncHandler");
 
 // ============================
 // TEST ROUTE
@@ -16,11 +18,11 @@ router.get("/test", (req, res) => {
 // ============================
 // REGISTER LIBRARIAN
 // ============================
-router.post("/register", async (req, res) => {
-  try {
+router.post(
+  "/register",
+  asyncHandler(async (req, res) => {
     const { ownerName, email, password, libraryId } = req.body;
 
-    // Check if email already exists
     const existingLibrarian = await Librarian.findOne({ email });
 
     if (existingLibrarian) {
@@ -30,10 +32,12 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const librarian = await Librarian.create({
       ownerName,
       email,
-      password,
+      password: hashedPassword,
       libraryId,
     });
 
@@ -42,30 +46,30 @@ router.post("/register", async (req, res) => {
       message: "Librarian registered successfully.",
       librarian,
     });
-
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+  })
+);
 
 // ============================
 // LOGIN LIBRARIAN
 // ============================
-router.post("/login", async (req, res) => {
-  try {
+router.post(
+  "/login",
+  asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
-    const librarian = await Librarian.findOne({
-      email,
-      password,
-    });
+    const librarian = await Librarian.findOne({ email });
 
     if (!librarian) {
+      return res.status(401).json({
+        success: false,
+        message:
+          "You are not a valid librarian. Please contact LibrarySphere Administration.",
+      });
+    }
+
+    const match = await bcrypt.compare(password, librarian.password);
+
+    if (!match) {
       return res.status(401).json({
         success: false,
         message:
@@ -78,37 +82,22 @@ router.post("/login", async (req, res) => {
       message: "Login Successful",
       librarian,
     });
-
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+  })
+);
 
 // ============================
 // GET ALL LIBRARIANS
 // ============================
-router.get("/", async (req, res) => {
-  try {
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
     const librarians = await Librarian.find();
 
     res.json({
       success: true,
       librarians,
     });
-
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+  })
+);
 
 module.exports = router;
