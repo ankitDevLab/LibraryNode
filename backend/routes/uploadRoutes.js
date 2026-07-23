@@ -1,53 +1,49 @@
+console.log("✅ uploadRoutes loaded");
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
-const cloudinary = require("../config/cloudinary");
-const asyncHandler = require("../utils/asyncHandler");
-
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith("image/")) {
-      return cb(new Error("Only image uploads are allowed"));
-    }
-    cb(null, true);
-  },
-});
-
 router.get("/", (req, res) => {
   res.send("Upload Route Working");
 });
+const multer = require("multer");
+const cloudinary = require("../config/cloudinary");
 
-router.post(
-  "/",
-  upload.single("photo"),
-  asyncHandler(async (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "No file uploaded",
-      });
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+
+router.post("/", upload.single("photo"), async (req, res) => {
+    console.log("📸 Upload route hit");
+    
+    try {
+        console.log("File received:", req.file);
+        
+        const result = await new Promise((resolve, reject) => {
+            cloudinary.uploader
+            .upload_stream(
+                {
+                    folder: "librarysphere/students",
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            )
+            .end(req.file.buffer);
+        });
+        
+        console.log("Cloudinary Result:", result);
+        
+        res.json({
+            success: true,
+            imageUrl: result.secure_url,
+        });
+    } catch (error) {
+        console.error("UPLOAD ERROR:", error);
+        
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
-
-    const result = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          { folder: "librarysphere/students" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        )
-        .end(req.file.buffer);
-    });
-
-    res.json({
-      success: true,
-      imageUrl: result.secure_url,
-    });
-  })
-);
-
+});
 module.exports = router;

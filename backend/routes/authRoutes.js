@@ -1,81 +1,150 @@
 const express = require("express");
-const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
 const User = require("../models/User");
-const asyncHandler = require("../utils/asyncHandler");
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is not set in the environment");
-}
+const router = express.Router();
 
+// ===============================
 // Register
-router.post(
-  "/register",
-  asyncHandler(async (req, res) => {
-    const { name, email, password, role } = req.body;
+// ===============================
+router.post("/register", async (req, res) => {
+  try {
+    let { name, email, password, role } = req.body;
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Validation
+    if (!name || !email || !password) {
       return res.status(400).json({
+        success: false,
+        message: "Name, email and password are required.",
+      });
+    }
+
+    name = name.trim();
+    email = email.trim().toLowerCase();
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long.",
+      });
+    }
+
+    // Check existing user
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(409).json({
         success: false,
         message: "Email already registered.",
       });
     }
 
+    // Allow only student registration from frontend
+      const allowedRole = "student";
+
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create user
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
-      role,
+      role: allowedRole,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      user,
+      message: "Registration successful.",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
-  })
-);
+  } catch (error) {
+    console.error(error);
 
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+});
+
+// ===============================
 // Login
-router.post(
-  "/login",
-  asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+// ===============================
+router.post("/login", async (req, res) => {
+  try {
+    let { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required.",
+      });
+    }
+
+    email = email.trim().toLowerCase();
+
+    // Find user
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-      return res.status(400).json({
+      return res.status(401).json({
         success: false,
-        message: "User not found",
+        message: "Invalid email or password.",
       });
     }
 
-    const match = await bcrypt.compare(password, user.password);
-
-    if (!match) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid password",
-      });
-    }
-
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      JWT_SECRET,
-      { expiresIn: "7d" }
+    // Compare password
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
     );
 
-    res.json({
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password.",
+      });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    return res.status(200).json({
       success: true,
+      message: "Login successful.",
       token,
-      user,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
-  })
-);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+});
 
 module.exports = router;

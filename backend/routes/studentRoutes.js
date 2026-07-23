@@ -2,41 +2,48 @@ const express = require("express");
 const router = express.Router();
 
 const Student = require("../models/Student");
-const asyncHandler = require("../utils/asyncHandler");
 
 // Create Student
-router.post(
-  "/",
-  asyncHandler(async (req, res) => {
+router.post("/", async (req, res) => {
+  try {
     const student = await Student.create(req.body);
 
     res.status(201).json({
       success: true,
       student,
     });
-  })
-);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 
 // Get All Students
-router.get(
-  "/",
-  asyncHandler(async (req, res) => {
+router.get("/", async (req, res) => {
+  try {
     const students = await Student.find();
 
     res.json({
       success: true,
       students,
     });
-  })
-);
-
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 // Student Login
-router.post(
-  "/login",
-  asyncHandler(async (req, res) => {
+router.post("/login", async (req, res) => {
+  try {
     const { mobile } = req.body;
 
-    const student = await Student.findOne({ mobile });
+    const student = await Student.findOne({
+      mobile,
+    });
 
     if (!student) {
       return res.status(404).json({
@@ -49,7 +56,11 @@ router.post(
       success: true,
       student,
     });
-  })
-);
-
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 module.exports = router;

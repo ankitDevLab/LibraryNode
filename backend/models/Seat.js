@@ -1,39 +1,67 @@
 const mongoose = require("mongoose");
 
-const seatSchema = new mongoose.Schema(
+const slotAvailabilitySchema = new mongoose.Schema(
   {
-    libraryId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Library",
+    slotId: {
+      type: String,
       required: true,
+      trim: true,
     },
-
-    seatNumber: {
-      type: Number,
-      required: true,
-    },
-
-    floor: String,
 
     status: {
       type: String,
       enum: ["available", "pending", "booked"],
       default: "available",
     },
-    studentId: {
-    type: String,
-    default: null,
+  },
+  {
+    _id: false,
+  }
+);
+
+const seatSchema = new mongoose.Schema(
+  {
+    libraryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Library",
+      required: true,
+      index: true,
     },
 
-    plans: [
-      {
-        duration: Number,
-        price: Number,
-      },
-    ],
+    seatNumber: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
+    floor: {
+      type: String,
+      default: "Ground Floor",
+      trim: true,
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
+    slotAvailability: {
+      type: [slotAvailabilitySchema],
+      default: [],
+    },
   },
   {
     timestamps: true,
+  }
+);
+
+seatSchema.index(
+  {
+    libraryId: 1,
+    seatNumber: 1,
+  },
+  {
+    unique: true,
   }
 );
 
