@@ -41,7 +41,6 @@ const librarianSchema = new mongoose.Schema(
 );
 
 // Prevent duplicate email
-librarianSchema.index({ email: 1 }, { unique: true });
 
 module.exports = mongoose.model(
   "Librarian",

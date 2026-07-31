@@ -193,10 +193,6 @@ bookingSchema.index({
   status: 1,
 });
 
-// Student lookup
-bookingSchema.index({
-  studentId: 1,
-});
 
 // Expiry lookup
 bookingSchema.index({
