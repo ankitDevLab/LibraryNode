@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
 import Home from "./pages/Home";
 import StudentLogin from "./pages/StudentLogin";
@@ -20,9 +21,13 @@ import Attendance from "./pages/Attendance";
 import StudentPass from "./pages/StudentPass";
 import AttendanceScanner from "./pages/AttendanceScanner";
 import AvailableSeats from "./pages/AvailableSeats";
+import Practice from "./pages/Practice";
+import SupportWidget from "./components/SupportWidget";
+
 function App() {
   return (
     <BrowserRouter>
+      <Toaster position="top-center" />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/student-login" element={<StudentLogin />} />
@@ -44,8 +49,10 @@ function App() {
         <Route path="/student-pass" element={<StudentPass />} />
         <Route path="/attendance-scanner" element={<AttendanceScanner />} />
         <Route path="/available-seats" element={<AvailableSeats />} />
+        <Route path="/quiz/:exam" element={<Practice />} />
+        <Route path="/quiz-history" element={<Practice />} />
       </Routes>
-      
+      <SupportWidget />
     </BrowserRouter>
   );
 }

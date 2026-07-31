@@ -6,6 +6,10 @@ function StudentLogin() {
   const navigate = useNavigate();
 
   const [mobile, setMobile] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [studentName, setStudentName] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const loginStudent = async () => {
     try {
@@ -16,27 +20,27 @@ function StudentLogin() {
         }
       );
 
-        localStorage.setItem(
-          "studentProfile",
-          JSON.stringify(response.data.student)
-        );
+      localStorage.setItem(
+        "studentProfile",
+        JSON.stringify(response.data.student)
+      );
 
-      alert("Login Successful");
-
-      navigate("/student-dashboard");
+      setStudentName(response.data.student.name || "");
+      setShowSuccessModal(true);
     } catch (error) {
-  console.error(error);
+      console.error(error);
 
-  console.log(
-    "SERVER ERROR:",
-    error.response?.data
-  );
+      console.log(
+        "SERVER ERROR:",
+        error.response?.data
+      );
 
-  alert(
-    error.response?.data?.message ||
-    "Login Failed"
-  );
-}
+      setErrorMsg(
+        error.response?.data?.message ||
+        "Your login ID or credentials are not valid. Please check and try again."
+      );
+      setShowErrorModal(true);
+    }
   };
 
   return (
@@ -110,6 +114,64 @@ function StudentLogin() {
         </button>
 
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-100 transition transform hover:scale-[1.01]">
+            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl text-green-600">
+              ✅
+            </div>
+
+            <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">
+              Login Successful
+            </h3>
+
+            {studentName && (
+              <p className="text-xl font-bold text-blue-600 mb-4">
+                {studentName}
+              </p>
+            )}
+
+            <p className="text-slate-500 font-medium leading-relaxed mb-8">
+              Your login was successful. Welcome back to LibrarySphere!
+            </p>
+
+            <button
+              onClick={() => navigate("/student-dashboard")}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
+            >
+              Continue to Dashboard
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Error Modal */}
+      {showErrorModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-100 transition transform hover:scale-[1.01]">
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl text-red-500">
+              🚫
+            </div>
+
+            <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">
+              Login Failed
+            </h3>
+
+            <p className="text-slate-500 font-medium leading-relaxed mb-8 text-sm">
+              {errorMsg}
+            </p>
+
+            <button
+              onClick={() => setShowErrorModal(false)}
+              className="w-full bg-slate-800 hover:bg-slate-900 text-white py-4 rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

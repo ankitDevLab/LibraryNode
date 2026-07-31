@@ -1,15 +1,41 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
 import jsPDF from "jspdf";
+import { useEffect, useState } from "react";
+import API from "../api/axios";
 
 function StudentPass() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [booking, setBooking] = useState(location.state || null);
+  const [loading, setLoading] = useState(!location.state);
 
-  const booking =
-    location.state ||
-    JSON.parse(
-      localStorage.getItem("currentBooking")
-    );
+  useEffect(() => {
+    if (!booking) {
+      fetchLatestBooking();
+    }
+  }, []);
+
+  const fetchLatestBooking = async () => {
+    try {
+      const student = JSON.parse(localStorage.getItem("studentProfile"));
+      if (!student?._id) {
+        setLoading(false);
+        return;
+      }
+      const response = await API.get("/bookings");
+      const approvedBooking = response.data.bookings.find(
+        (b) => b.studentId?._id === student._id && b.status === "Approved"
+      );
+      if (approvedBooking) {
+        setBooking(approvedBooking);
+      }
+    } catch (error) {
+      console.error("Error fetching pass booking:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   console.log("BOOKING DATA:", booking);
 
@@ -23,7 +49,7 @@ function StudentPass() {
       booking?.libraryId,
     seatNumber: booking?.seatNumber,
     libraryName: booking?.libraryName,
-    slot: booking?.slot,
+    slot: booking?.slotSnapshot?.name || booking?.slot,
     status: booking?.status,
   };
 
@@ -47,7 +73,7 @@ function StudentPass() {
       50
     );
     doc.text(
-      `Slot: ${booking.slot}`,
+      `Slot: ${booking.slotSnapshot?.name || booking.slot}`,
       20,
       60
     );
@@ -66,10 +92,27 @@ function StudentPass() {
     doc.save("LibraryPass.pdf");
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100">
+        <p className="text-lg text-slate-500 font-semibold">Loading entry pass...</p>
+      </div>
+    );
+  }
+
   if (!booking) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        No Pass Found
+      <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-5">
+        <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full">
+          <h2 className="text-2xl font-bold text-red-600">No Pass Found</h2>
+          <p className="text-slate-500 mt-2">You don't have any approved active booking.</p>
+          <button
+            onClick={() => navigate("/student-dashboard")}
+            className="mt-6 w-full bg-blue-600 text-white py-3 rounded-xl font-bold"
+          >
+            Go to Dashboard
+          </button>
+        </div>
       </div>
     );
   }
@@ -77,6 +120,13 @@ function StudentPass() {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-5">
       <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full">
+
+        <button
+          onClick={() => navigate(-1)}
+          className="text-left w-full text-blue-600 mb-4 hover:underline block"
+        >
+          ← Back
+        </button>
 
         <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-2xl p-5 mb-6">
           <h1 className="text-3xl font-bold">
@@ -88,10 +138,12 @@ function StudentPass() {
           </p>
         </div>
 
-        <QRCodeCanvas
-          value={JSON.stringify(qrData)}
-          size={220}
-        />
+        <div className="flex justify-center">
+          <QRCodeCanvas
+            value={JSON.stringify(qrData)}
+            size={220}
+          />
+        </div>
 
         <p className="mt-3 text-slate-500">
           Show this QR code at library entry
@@ -111,7 +163,7 @@ function StudentPass() {
 
           <p className="mt-2">
             <strong>Slot:</strong>{" "}
-            {booking.slot}
+            {booking.slotSnapshot?.name || booking.slot}
           </p>
 
           <div className="mt-3">

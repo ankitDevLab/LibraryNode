@@ -29,7 +29,13 @@ router.post("/", async (req, res) => {
 // =======================
 router.get("/", async (req, res) => {
   try {
-    const attendance = await Attendance.find()
+    const { libraryId } = req.query;
+    const filter = {};
+    if (libraryId) {
+      filter.libraryId = libraryId;
+    }
+
+    const attendance = await Attendance.find(filter)
       .populate("studentId");
 
     res.json({

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 
 function StudentManagement() {
+  const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
 
@@ -11,7 +13,10 @@ function StudentManagement() {
 
   const fetchStudents = async () => {
     try {
-      const response = await API.get("/bookings");
+      const libraryId = localStorage.getItem("libraryId");
+      if (!libraryId) return;
+
+      const response = await API.get(`/bookings?libraryId=${libraryId}`);
 
       setStudents(response.data.bookings);
     } catch (error) {
@@ -29,9 +34,17 @@ function StudentManagement() {
     <div className="min-h-screen bg-slate-100 p-5">
       <div className="max-w-6xl mx-auto">
 
-        <h1 className="text-3xl font-bold mb-6">
-          Student Management
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">
+            Student Management
+          </h1>
+          <button
+            onClick={() => navigate("/librarian-dashboard")}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+          >
+            Back
+          </button>
+        </div>
 
         <input
           type="text"

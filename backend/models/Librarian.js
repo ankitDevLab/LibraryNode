@@ -34,6 +34,11 @@ const librarianSchema = new mongoose.Schema(
       ref: "Library",
       required: [true, "Library ID is required"],
     },
+
+    photo: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

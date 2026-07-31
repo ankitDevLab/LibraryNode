@@ -1,22 +1,40 @@
+import { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
-import { QRCodeCanvas } from "qrcode.react";;
+import { QRCodeCanvas } from "qrcode.react";
+import API from "../api/axios";
 
 function StudentIDCard() {
   const profile =
     JSON.parse(localStorage.getItem("studentProfile")) || {};
 
-  const bookings =
-    JSON.parse(localStorage.getItem("bookings")) || [];
+  const [approvedBooking, setApprovedBooking] = useState(null);
 
-  const approvedBooking =
-    bookings.find((b) => b.status === "Approved") || null;
+  useEffect(() => {
+    const fetchBooking = async () => {
+      try {
+        if (!profile?._id) return;
+
+        const response = await API.get(`/bookings?studentId=${profile._id}`);
+
+        const myApproved = response.data.bookings.find(
+          (b) => b.status === "Approved"
+        );
+
+        setApprovedBooking(myApproved || null);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchBooking();
+  }, []);
 
   const qrData = JSON.stringify({
     name: profile?.name || "",
     mobile: profile?.mobile || "",
     library: approvedBooking?.libraryName || "",
     seat: approvedBooking?.seatNumber || "",
-    slot: approvedBooking?.slotTime || "",
+    slot: approvedBooking?.slotSnapshot?.name || "",
     status: approvedBooking?.status || "",
   });
 
@@ -46,7 +64,7 @@ function StudentIDCard() {
       );
 
       doc.text(
-        `Slot: ${approvedBooking.slotTime}`,
+        `Slot: ${approvedBooking.slotSnapshot?.name || ""}`,
         20,
         100
       );
@@ -129,7 +147,7 @@ function StudentIDCard() {
         </p>
 
         <p>
-          ⏰ {approvedBooking.slotTime}
+          ⏰ {approvedBooking.slotSnapshot?.name || ""}
         </p>
 
       </div>

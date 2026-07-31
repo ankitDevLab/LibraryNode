@@ -1,28 +1,59 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import API from "../api/axios";
 
 function StudentDashboard() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [activeModule, setActiveModule] = useState("library");
+  const [currentBooking, setCurrentBooking] = useState(null);
 
-  const student =
-    JSON.parse(localStorage.getItem("studentProfile")) || {};
+  const [student, setStudent] = useState(
+    JSON.parse(localStorage.getItem("studentProfile")) || {}
+  );
 
   const logout = () => {
     localStorage.removeItem("studentProfile");
     navigate("/");
   };
 
-  const bookingData =
-    location.state ||
-    JSON.parse(localStorage.getItem("currentBooking"));
+  // Fetch current booking and fresh student profile from MongoDB on mount
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        if (!student?._id) return;
+
+        // Fetch fresh profile info
+        const profileRes = await API.get(`/students/${student._id}`);
+        if (profileRes.data.success) {
+          const freshStudent = profileRes.data.student;
+          setStudent(freshStudent);
+          localStorage.setItem("studentProfile", JSON.stringify(freshStudent));
+        }
+
+        // Fetch current booking (filtered by studentId on backend)
+        const bookingsRes = await API.get(`/bookings?studentId=${student._id}`);
+        const myBookings = bookingsRes.data.bookings;
+
+        // Prioritize Approved, then Pending
+        const approved = myBookings.find(
+          (b) => b.status === "Approved"
+        );
+        const pending = myBookings.find(
+          (b) => b.status === "Pending"
+        );
+
+        setCurrentBooking(approved || pending || null);
+      } catch (error) {
+        console.error("Failed to load dashboard data:", error);
+      }
+    };
+
+    loadDashboardData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-100">
-      <Navbar title="Student Dashboard" />
 
       <div className="max-w-6xl mx-auto p-5">
 
@@ -74,128 +105,138 @@ function StudentDashboard() {
 
           <button
             onClick={() => setActiveModule("library")}
-            className={`px-6 py-3 rounded-xl font-semibold transition ${
-              activeModule === "library"
-                ? "bg-blue-600 text-white"
-                : "bg-white border border-blue-600 text-blue-600"
-            }`}
+            className={`px-6 py-3 rounded-xl font-semibold transition ${activeModule === "library"
+              ? "bg-blue-600 text-white"
+              : "bg-white border border-blue-600 text-blue-600"
+              }`}
           >
             📚 Library Booking
           </button>
 
           <button
             onClick={() => setActiveModule("quiz")}
-            className={`px-6 py-3 rounded-xl font-semibold transition ${
-              activeModule === "quiz"
-                ? "bg-blue-600 text-white"
-                : "bg-white border border-blue-600 text-blue-600"
-            }`}
+            className={`px-6 py-3 rounded-xl font-semibold transition ${activeModule === "quiz"
+              ? "bg-blue-600 text-white"
+              : "bg-white border border-blue-600 text-blue-600"
+              }`}
           >
             📝 Quiz Practice
           </button>
 
         </div>
 
-{activeModule === "library" && (
-  <>
+        {activeModule === "library" && (
+          <>
 
-    {/* Hero Card */}
-    <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-3xl p-8 shadow-lg mb-6">
+            {/* Hero Card */}
+            <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-3xl p-8 shadow-lg mb-6">
 
-      <h2 className="text-4xl font-bold">
-        Book a Library
-      </h2>
+              <h2 className="text-4xl font-bold">
+                Book a Library
+              </h2>
 
-      <p className="mt-2 text-lg opacity-90">
-        Find and reserve your perfect study space.
-      </p>
+              <p className="mt-2 text-lg opacity-90">
+                Find and reserve your perfect study space.
+              </p>
 
-      <button
-        onClick={() => navigate("/libraries")}
-        className="mt-5 bg-white text-blue-600 px-6 py-3 rounded-xl font-bold"
-      >
-        View Libraries
-      </button>
+              <button
+                onClick={() => navigate("/libraries")}
+                className="mt-5 bg-white text-blue-600 px-6 py-3 rounded-xl font-bold"
+              >
+                View Libraries
+              </button>
 
-    </div>
+            </div>
 
-    {/* Action Cards */}
+            {/* Action Cards */}
 
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
 
-      <button
-        onClick={() => navigate("/notifications")}
-        className="bg-orange-500 text-white rounded-2xl p-5 shadow-lg hover:scale-105 transition"
-      >
-        <div className="text-3xl">🔔</div>
+              <button
+                onClick={() => navigate("/notifications")}
+                className="bg-orange-500 text-white rounded-2xl p-5 shadow-lg hover:scale-105 transition"
+              >
+                <div className="text-3xl">🔔</div>
 
-        <p className="mt-2 font-semibold">
-          Notifications
-        </p>
-      </button>
+                <p className="mt-2 font-semibold">
+                  Notifications
+                </p>
+              </button>
 
-      <button
-        onClick={() => navigate("/booking-history")}
-        className="bg-purple-600 text-white rounded-2xl p-5 shadow-lg hover:scale-105 transition"
-      >
-        <div className="text-3xl">📖</div>
+              <button
+                onClick={() => navigate("/booking-history")}
+                className="bg-purple-600 text-white rounded-2xl p-5 shadow-lg hover:scale-105 transition"
+              >
+                <div className="text-3xl">📖</div>
 
-        <p className="mt-2 font-semibold">
-          My Bookings
-        </p>
-      </button>
+                <p className="mt-2 font-semibold">
+                  My Bookings
+                </p>
+              </button>
 
-      <button
-        onClick={() => navigate("/student-id-card")}
-        className="bg-green-600 text-white rounded-2xl p-5 shadow-lg hover:scale-105 transition"
-      >
-        <div className="text-3xl">🪪</div>
+              <button
+                onClick={() => navigate("/student-id-card")}
+                className="bg-green-600 text-white rounded-2xl p-5 shadow-lg hover:scale-105 transition"
+              >
+                <div className="text-3xl">🪪</div>
 
-        <p className="mt-2 font-semibold">
-          ID Card
-        </p>
-      </button>
+                <p className="mt-2 font-semibold">
+                  ID Card
+                </p>
+              </button>
 
-    </div>
+            </div>
 
-    {/* Current Library */}
+            {/* Current Library */}
 
-    {bookingData && (
-      <div className="bg-white rounded-3xl shadow-lg p-6">
+            {currentBooking && (
+              <div className="bg-white rounded-3xl shadow-lg p-6">
 
-        <h2 className="text-2xl font-bold mb-4">
-          Current Library
-        </h2>
+                <h2 className="text-2xl font-bold mb-4">
+                  Current Library
+                </h2>
 
-        <p>
-          <strong>Library:</strong> {bookingData.libraryName}
-        </p>
+                <p>
+                  <strong>Library:</strong> {currentBooking.libraryName}
+                </p>
 
-        <p className="mt-2">
-          <strong>Slot:</strong> {bookingData.slotTime}
-        </p>
+                <p className="mt-2">
+                  <strong>Seat:</strong> {currentBooking.seatNumber}
+                </p>
 
-        <p className="mt-2">
-          <strong>Status:</strong>
+                <p className="mt-2">
+                  <strong>Slot:</strong>{" "}
+                  {currentBooking.slotSnapshot?.name || currentBooking.slot}
+                </p>
 
-          <span className="text-green-600 font-bold ml-2">
-            Approved
-          </span>
+                <p className="mt-2">
+                  <strong>Status:</strong>
 
-        </p>
+                  <span
+                    className={`font-bold ml-2 ${currentBooking.status === "Approved"
+                      ? "text-green-600"
+                      : "text-yellow-600"
+                      }`}
+                  >
+                    {currentBooking.status}
+                  </span>
 
-        <button
-          onClick={() => navigate("/booking-history")}
-          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-xl"
-        >
-          View Pass
-        </button>
+                </p>
 
-      </div>
-    )}
+                <button
+                  onClick={() => navigate("/booking-history")}
+                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-xl"
+                >
+                  {currentBooking.status === "Approved"
+                    ? "View Pass"
+                    : "View Details"}
+                </button>
 
-  </>
-)}
+              </div>
+            )}
+
+          </>
+        )}
 
         {activeModule === "quiz" && (
           <>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../api/axios";
+import { toast } from "react-hot-toast";
 
 function LibraryDetails() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ function LibraryDetails() {
   const [message, setMessage] = useState("");
 
 const [library, setLibrary] = useState(null);
+const [loading, setLoading] = useState(true);
 
 useEffect(() => {
   fetchLibrary();
@@ -22,26 +24,26 @@ useEffect(() => {
 const fetchLibrary = async () => {
   try {
     const response = await API.get(
-      "/libraries"
+      `/libraries/${id}`
     );
 
-    console.log("URL ID:", id);
-
-    const foundLibrary =
-      response.data.libraries.find(
-        (lib) => String(lib._id) === String(id)
-      );
-
-    console.log("FOUND:", foundLibrary);
-
-    setLibrary(foundLibrary);
-    console.log("Library Data:", foundLibrary);
+    setLibrary(response.data.library);
 
   } catch (error) {
     console.error(error);
+  } finally {
+    setLoading(false);
   }
 };
   console.log("CURRENT LIBRARY:", library);
+  if (loading) {
+    return (
+      <div className="p-10 text-center text-xl text-slate-500">
+        Loading library...
+      </div>
+    );
+  }
+
   if (!library) {
     return (
       <div className="p-10 text-center text-2xl font-bold">
@@ -50,60 +52,41 @@ const fetchLibrary = async () => {
     );
   }
 
-const slots = [
-  {
-    id: 1,
-    startTime: "06:00 Am",
-    endTime: "11:00 Am",
-    price: library.slot1Price,
-  },
-  {
-    id: 2,
-    startTime: "11:00 Am",
-    endTime: "04:00 Pm" ,
-    price: library.slot2Price,
-  },
-  {
-    id: 3,
-    startTime: "04:00 Pm",
-    endTime: "09:00 Pm",
-    price: library.slot3Price,
-  },
-  {
-    id: 4,
-    startTime: "09:00 Pm",
-    endTime: "06:00 AM",
-    price: library.slot4Price,
-  },
-].filter(slot => slot.price > 0);
+const slots = (library.slots || []).filter(
+  (slot) => slot.isActive && slot.price > 0
+);
 
-  const sendCustomRequest = () => {
-    const existingRequests =
-      JSON.parse(localStorage.getItem("customRequests")) || [];
+  const sendCustomRequest = async () => {
+    if (!startTime || !endTime) {
+      toast.error("Please fill start and end times");
+      return;
+    }
 
-    const newRequest = {
-      id: Date.now(),
-      studentName: "Student",
-      libraryId: library._id,
-      libraryName: library.name,
-      startTime,
-      endTime,
-      message,
-      status: "Pending",
-    };
+    try {
+      const student = JSON.parse(localStorage.getItem("studentProfile")) || {};
+      const studentName = student.name || "Student";
 
-    existingRequests.push(newRequest);
+      const newRequest = {
+        studentName,
+        libraryId: library._id,
+        libraryName: library.name,
+        startTime,
+        endTime,
+        message,
+        status: "Pending",
+      };
 
-    localStorage.setItem(
-      "customRequests",
-      JSON.stringify(existingRequests)
-    );
+      await API.post("/custom-requests", newRequest);
 
-    alert("Custom Timing Request Sent Successfully");
+      toast.success("Custom Timing Request Sent Successfully! Your custom timing request has been submitted.");
 
-    setStartTime("");
-    setEndTime("");
-    setMessage("");
+      setStartTime("");
+      setEndTime("");
+      setMessage("");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to send request");
+    }
   };
 
   return (
@@ -121,6 +104,9 @@ const slots = [
           <h1 className="text-4xl font-bold">
             {library.name}
           </h1>
+          <p className="text-blue-600 font-semibold mt-1">
+            Library ID: {library._id}
+          </p>
 
           <p className="text-slate-500 mt-2">
             {library.city}, {library.district}, {library.state}
@@ -148,20 +134,20 @@ const slots = [
 
           {slots.map((slot) => (
             <div
-              key={slot.id}
+              key={slot.slotId}
               onClick={() => {
                 setSelectedSlot(slot);
                 setShowCustomTiming(false);
               }}
               className={`cursor-pointer rounded-2xl p-6 border-2 transition
               ${
-                selectedSlot?.id === slot.id
+                selectedSlot?.slotId === slot.slotId
                   ? "border-blue-600 bg-blue-50"
                   : "border-slate-200 bg-white hover:border-blue-300"
               }`}
             >
               <h3 className="text-xl font-bold">
-                {slot.startTime} - {slot.endTime}
+                {slot.name} ({slot.startTime} - {slot.endTime})
               </h3>
 
               <p className="mt-3 text-2xl font-bold text-blue-600">
@@ -213,14 +199,14 @@ const slots = [
     libraryId: library._id,
     libraryName: library.name,
 
-    slotId: selectedSlot.id,
+    slotId: selectedSlot.slotId,
 
-    slotTime: `${selectedSlot.startTime} - ${selectedSlot.endTime}`,
+    slotTime: `${selectedSlot.name} (${selectedSlot.startTime} - ${selectedSlot.endTime})`,
 
     slotPrice: selectedSlot.price,
 
     slotSnapshot: {
-      name: `${selectedSlot.startTime} - ${selectedSlot.endTime}`,
+      name: selectedSlot.name,
       startTime: selectedSlot.startTime,
       endTime: selectedSlot.endTime,
       price: selectedSlot.price,

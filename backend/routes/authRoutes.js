@@ -10,6 +10,8 @@ const router = express.Router();
 // Register
 // ===============================
 router.post("/register", async (req, res) => {
+  const startTime = Date.now();
+  console.log("\n📥 [AUTH REGISTER] Request received");
   try {
     let { name, email, password, role } = req.body;
 
@@ -32,7 +34,9 @@ router.post("/register", async (req, res) => {
     }
 
     // Check existing user
+    console.time("[AUTH REGISTER] DB findOne");
     const existingUser = await User.findOne({ email });
+    console.timeEnd("[AUTH REGISTER] DB findOne");
 
     if (existingUser) {
       return res.status(409).json({
@@ -45,16 +49,21 @@ router.post("/register", async (req, res) => {
       const allowedRole = "student";
 
     // Hash password
+    console.time("[AUTH REGISTER] bcrypt hash");
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.timeEnd("[AUTH REGISTER] bcrypt hash");
 
     // Create user
+    console.time("[AUTH REGISTER] DB create");
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
       role: allowedRole,
     });
+    console.timeEnd("[AUTH REGISTER] DB create");
 
+    console.log(`✅ [AUTH REGISTER] Completed in ${Date.now() - startTime}ms`);
     return res.status(201).json({
       success: true,
       message: "Registration successful.",
@@ -79,6 +88,8 @@ router.post("/register", async (req, res) => {
 // Login
 // ===============================
 router.post("/login", async (req, res) => {
+  const startTime = Date.now();
+  console.log("\n📥 [AUTH LOGIN] Request received");
   try {
     let { email, password } = req.body;
 
@@ -92,7 +103,9 @@ router.post("/login", async (req, res) => {
     email = email.trim().toLowerCase();
 
     // Find user
+    console.time("[AUTH LOGIN] DB findOne");
     const user = await User.findOne({ email }).select("+password");
+    console.timeEnd("[AUTH LOGIN] DB findOne");
 
     if (!user) {
       return res.status(401).json({
@@ -102,10 +115,12 @@ router.post("/login", async (req, res) => {
     }
 
     // Compare password
+    console.time("[AUTH LOGIN] bcrypt compare");
     const isMatch = await bcrypt.compare(
       password,
       user.password
     );
+    console.timeEnd("[AUTH LOGIN] bcrypt compare");
 
     if (!isMatch) {
       return res.status(401).json({
@@ -115,6 +130,7 @@ router.post("/login", async (req, res) => {
     }
 
     // Generate JWT
+    console.time("[AUTH LOGIN] JWT sign");
     const token = jwt.sign(
       {
         id: user._id,
@@ -125,7 +141,9 @@ router.post("/login", async (req, res) => {
         expiresIn: "7d",
       }
     );
+    console.timeEnd("[AUTH LOGIN] JWT sign");
 
+    console.log(`✅ [AUTH LOGIN] Completed in ${Date.now() - startTime}ms`);
     return res.status(200).json({
       success: true,
       message: "Login successful.",
@@ -138,6 +156,7 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
+    console.error(`❌ [AUTH LOGIN] Failed after ${Date.now() - startTime}ms`);
     console.error(error);
 
     return res.status(500).json({

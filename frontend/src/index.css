@@ -1,1 +1,35 @@
 @import "tailwindcss";
+
+/* Global Library Background Layout */
+body {
+  background-image: url('/library-background.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Global soft light-blue/white overlay - very subtle transparency to keep image sharp and clearly visible */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(239, 246, 255, 0.35) 50%, rgba(255, 255, 255, 0.45) 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Override solid background classes for all page outer wrappers to let the global background shine through */
+div.min-h-screen.bg-slate-100,
+div.min-h-screen.bg-slate-50,
+div.min-h-screen.bg-slate-200,
+div.min-h-screen.bg-zinc-100 {
+  background-color: transparent !important;
+}

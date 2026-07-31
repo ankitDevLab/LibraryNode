@@ -21,21 +21,46 @@ router.post("/", async (req, res) => {
     console.log("Booking Saved:");
     console.log(booking);
 
-    // Update seat status
-    const seat = await Seat.findOneAndUpdate(
-      {
-        libraryId: req.body.libraryId,
-        seatNumber: req.body.seatNumber,
-      },
-      {
-        status: "pending",
-        studentId: req.body.studentId,
-      },
-      { new: true }
-    );
+    // Update seat slot availability status
+    const slotId = String(req.body.slotId);
+    const seat = await Seat.findOne({
+      libraryId: req.body.libraryId,
+      seatNumber: req.body.seatNumber,
+    });
 
-    console.log("Seat Updated:");
-    console.log(seat);
+    if (seat) {
+      const existingEntry = seat.slotAvailability.find(
+        (s) => String(s.slotId) === slotId
+      );
+
+      if (existingEntry) {
+        await Seat.updateOne(
+          {
+            libraryId: req.body.libraryId,
+            seatNumber: req.body.seatNumber,
+            "slotAvailability.slotId": slotId,
+          },
+          {
+            $set: { "slotAvailability.$.status": "pending" },
+          }
+        );
+      } else {
+        await Seat.updateOne(
+          {
+            libraryId: req.body.libraryId,
+            seatNumber: req.body.seatNumber,
+          },
+          {
+            $push: {
+              slotAvailability: {
+                slotId,
+                status: "pending",
+              },
+            },
+          }
+        );
+      }
+    }
 
     res.status(201).json({
       success: true,
@@ -57,7 +82,16 @@ router.post("/", async (req, res) => {
 // =========================
 router.get("/", async (req, res) => {
   try {
-    const bookings = await Booking.find()
+    const { libraryId, studentId } = req.query;
+    const filter = {};
+    if (libraryId) {
+      filter.libraryId = libraryId;
+    }
+    if (studentId) {
+      filter.studentId = studentId;
+    }
+
+    const bookings = await Booking.find(filter)
       .populate("studentId");
 
     res.json({
@@ -98,13 +132,15 @@ router.patch("/:id/approve", async (req, res) => {
       });
     }
 
-    await Seat.findOneAndUpdate(
+    const slotId = String(booking.slotId);
+    await Seat.updateOne(
       {
         libraryId: booking.libraryId,
         seatNumber: booking.seatNumber,
+        "slotAvailability.slotId": slotId,
       },
       {
-        status: "booked",
+        $set: { "slotAvailability.$.status": "booked" },
       }
     );
 
@@ -146,14 +182,15 @@ router.patch("/:id/reject", async (req, res) => {
       });
     }
 
-    await Seat.findOneAndUpdate(
+    const slotId = String(booking.slotId);
+    await Seat.updateOne(
       {
         libraryId: booking.libraryId,
         seatNumber: booking.seatNumber,
+        "slotAvailability.slotId": slotId,
       },
       {
-        status: "available",
-        studentId: null,
+        $set: { "slotAvailability.$.status": "available" },
       }
     );
 

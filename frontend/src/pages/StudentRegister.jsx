@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import { toast } from "react-hot-toast";
+
 function StudentRegister() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -9,75 +11,70 @@ function StudentRegister() {
   const [aadhar, setAadhar] = useState("");
   const [photo, setPhoto] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
   const handlePhoto = async (e) => {
-  try {
-    const file = e.target.files[0];
+    try {
+      const file = e.target.files[0];
+      if (!file) return;
 
-    if (!file) return;
+      const formData = new FormData();
+      formData.append("photo", file);
 
-    const formData = new FormData();
+      const response = await API.post(
+        "/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-    // This must match upload.single("photo") in the backend
-    formData.append("photo", file);
-
-    const response = await API.post(
-      "/upload",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    // Save Cloudinary URL
-    setPhoto(response.data.imageUrl);
-
-    alert("Photo Uploaded Successfully");
-  } catch (error) {
-    console.error(error);
-
-    alert("Photo Upload Failed");
-  }
-};
-  const registerStudent = async () => {
-  try {
-    if (!name || !mobile || !photo) {
-      return alert("Please fill the name,mobile and upload a photo.");
+      setPhoto(response.data.imageUrl);
+      toast.success("Photo Uploaded Successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Photo Upload Failed");
     }
+  };
 
-    setLoading(true);
-
-    const response = await API.post(
-      "/students",
-      {
-        name,
-        mobile,
-        email,
-        aadhar,
-        photo,
+  const registerStudent = async () => {
+    try {
+      if (!name || !mobile || !photo) {
+        toast.error("Please fill the name, mobile and upload a photo.");
+        return;
       }
-    );
 
-    localStorage.setItem(
-      "studentProfile",
-      JSON.stringify(response.data.student)
-    );
+      setLoading(true);
 
-    alert("Registration Successful");
+      const response = await API.post(
+        "/students",
+        {
+          name,
+          mobile,
+          email,
+          aadhar,
+          photo,
+        }
+      );
 
-    navigate("/student-dashboard");
-  } catch (error) {
-    console.error(error);
+      localStorage.setItem(
+        "studentProfile",
+        JSON.stringify(response.data.student)
+      );
 
-    alert(
-      error.response?.data?.message ||
-      "Registration Failed"
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error.response?.data?.message ||
+        "Registration Failed"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-slate-100 py-8 px-4">
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-8">
@@ -168,6 +165,35 @@ function StudentRegister() {
 
         </div>
       </div>
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-100 transition transform hover:scale-[1.01]">
+            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl text-green-600">
+              ✅
+            </div>
+
+            <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">
+              Registration Successful
+            </h3>
+
+            <p className="text-xl font-bold text-blue-600 mb-4">
+              {name}
+            </p>
+
+            <p className="text-slate-500 font-medium leading-relaxed mb-8">
+              Your account has been registered successfully. Welcome to LibrarySphere!
+            </p>
+
+            <button
+              onClick={() => navigate("/student-dashboard")}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
+            >
+              Continue to Dashboard
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

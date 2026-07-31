@@ -63,4 +63,59 @@ router.post("/login", async (req, res) => {
     });
   }
 });
+
+// Get Single Student
+router.get("/:id", async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      student,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+// Update Student Profile
+router.put("/:id", async (req, res) => {
+  try {
+    const { name, email, college, course } = req.body;
+
+    const student = await Student.findByIdAndUpdate(
+      req.params.id,
+      { name, email, college, course },
+      { new: true, runValidators: true }
+    );
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      student,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
 module.exports = router;

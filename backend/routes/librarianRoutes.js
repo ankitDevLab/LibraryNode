@@ -21,6 +21,8 @@ router.get("/test", (req, res) => {
 // REGISTER LIBRARIAN
 // =====================================
 router.post("/register", async (req, res) => {
+  const startTime = Date.now();
+  console.log("\n📥 [LIBRARIAN REGISTER] Request received");
   try {
     let { ownerName, email, password, libraryId } = req.body;
 
@@ -41,7 +43,9 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    console.time("[LIBRARIAN REGISTER] DB findOne");
     const existingLibrarian = await Librarian.findOne({ email });
+    console.timeEnd("[LIBRARIAN REGISTER] DB findOne");
 
     if (existingLibrarian) {
       return res.status(409).json({
@@ -50,7 +54,9 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    console.time("[LIBRARIAN REGISTER] DB findLibrary");
     const library = await Library.findById(libraryId);
+    console.timeEnd("[LIBRARIAN REGISTER] DB findLibrary");
 
     if (!library) {
       return res.status(404).json({
@@ -59,15 +65,20 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    console.time("[LIBRARIAN REGISTER] bcrypt hash");
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.timeEnd("[LIBRARIAN REGISTER] bcrypt hash");
 
+    console.time("[LIBRARIAN REGISTER] DB create");
     const librarian = await Librarian.create({
       ownerName,
       email,
       password: hashedPassword,
       libraryId,
     });
+    console.timeEnd("[LIBRARIAN REGISTER] DB create");
 
+    console.log(`✅ [LIBRARIAN REGISTER] Completed in ${Date.now() - startTime}ms`);
     return res.status(201).json({
       success: true,
       message: "Librarian registered successfully.",
@@ -92,6 +103,8 @@ router.post("/register", async (req, res) => {
 // LOGIN LIBRARIAN
 // =====================================
 router.post("/login", async (req, res) => {
+  const startTime = Date.now();
+  console.log("\n📥 [LIBRARIAN LOGIN] Request received");
   try {
     let { email, password } = req.body;
 
@@ -104,7 +117,9 @@ router.post("/login", async (req, res) => {
 
     email = email.trim().toLowerCase();
 
+    console.time("[LIBRARIAN LOGIN] DB findOne");
     const librarian = await Librarian.findOne({ email }).select("+password");
+    console.timeEnd("[LIBRARIAN LOGIN] DB findOne");
 
     if (!librarian) {
       return res.status(401).json({
@@ -113,10 +128,12 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    console.time("[LIBRARIAN LOGIN] bcrypt compare");
     const isMatch = await bcrypt.compare(
       password,
       librarian.password
     );
+    console.timeEnd("[LIBRARIAN LOGIN] bcrypt compare");
 
     if (!isMatch) {
       return res.status(401).json({
@@ -125,6 +142,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    console.time("[LIBRARIAN LOGIN] JWT sign");
     const token = jwt.sign(
       {
         id: librarian._id,
@@ -136,7 +154,9 @@ router.post("/login", async (req, res) => {
         expiresIn: "7d",
       }
     );
+    console.timeEnd("[LIBRARIAN LOGIN] JWT sign");
 
+    console.log(`✅ [LIBRARIAN LOGIN] Completed in ${Date.now() - startTime}ms`);
     return res.status(200).json({
       success: true,
       message: "Login Successful",
@@ -149,8 +169,68 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
+    console.error(`❌ [LIBRARIAN LOGIN] Failed after ${Date.now() - startTime}ms`);
     console.error(error);
 
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+});
+
+// =====================================
+// GET SINGLE LIBRARIAN
+// =====================================
+router.get("/:id", async (req, res) => {
+  try {
+    const librarian = await Librarian.findById(req.params.id).populate("libraryId");
+    if (!librarian) {
+      return res.status(404).json({
+        success: false,
+        message: "Librarian not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      librarian,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+});
+
+// =====================================
+// UPDATE LIBRARIAN PROFILE
+// =====================================
+router.put("/:id", async (req, res) => {
+  try {
+    const { ownerName, email, photo } = req.body;
+
+    const librarian = await Librarian.findByIdAndUpdate(
+      req.params.id,
+      { ownerName, email, photo },
+      { new: true, runValidators: true }
+    ).populate("libraryId");
+
+    if (!librarian) {
+      return res.status(404).json({
+        success: false,
+        message: "Librarian not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      librarian,
+    });
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error.",

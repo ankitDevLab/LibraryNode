@@ -17,6 +17,7 @@ const bookingRoutes = require("./routes/bookingRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const seatRoutes = require("./routes/seatRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const customRequestRoutes = require("./routes/customRequestRoutes");
 
 const app = express();
 
@@ -63,6 +64,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/seats", seatRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/custom-requests", customRequestRoutes);
 
 // ===============================
 // 404 Handler

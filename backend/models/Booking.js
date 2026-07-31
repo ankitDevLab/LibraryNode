@@ -5,12 +5,13 @@ const bookingSchema = new mongoose.Schema(
     bookingNumber: {
       type: String,
       unique: true,
+      sparse: true,
       index: true,
     },
 
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Student",
       required: true,
       index: true,
     },
@@ -185,6 +186,19 @@ const bookingSchema = new mongoose.Schema(
   }
 );
 
+// Auto-generate bookingNumber before save to avoid duplicate-key errors
+// on undefined bookingNumber values
+bookingSchema.pre("save", function (next) {
+  if (!this.bookingNumber) {
+    this.bookingNumber =
+      "BK-" +
+      Date.now().toString(36).toUpperCase() +
+      "-" +
+      Math.random().toString(36).substring(2, 6).toUpperCase();
+  }
+  next();
+});
+
 // Prevent duplicate active booking
 bookingSchema.index({
   libraryId: 1,
@@ -192,7 +206,6 @@ bookingSchema.index({
   slotId: 1,
   status: 1,
 });
-
 
 // Expiry lookup
 bookingSchema.index({

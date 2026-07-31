@@ -17,14 +17,11 @@ function BookingHistory() {
       const student = JSON.parse(
         localStorage.getItem("studentProfile")
       );
+      if (!student?._id) return;
 
-      const response = await API.get("/bookings");
+      const response = await API.get(`/bookings?studentId=${student._id}`);
 
-      const myBookings = response.data.bookings.filter(
-        (booking) => booking.studentId?._id === student?._id
-      );
-
-      setBookings(myBookings);
+      setBookings(response.data.bookings);
     } catch (error) {
       console.error(error);
     }
@@ -32,15 +29,6 @@ function BookingHistory() {
 
   const currentBooking =
     bookings.find((b) => b.status === "Approved") || null;
-
-  useEffect(() => {
-    if (currentBooking) {
-      localStorage.setItem(
-        "currentBooking",
-        JSON.stringify(currentBooking)
-      );
-    }
-  }, [currentBooking]);
 
   const filteredBookings = (
     filter === "All"
