@@ -1,104 +1,86 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import API from "../api/axios";
+
 function BookingStatus() {
-  const location = useLocation();
   const navigate = useNavigate();
+  const { state: booking } = useLocation();
 
-  const booking = location.state;
-  console.log(booking);
-const savedRef = useRef(false);
+  const saved = useRef(false);
 
-useEffect(() => {
-  if (savedRef.current) return;
+  useEffect(() => {
+    if (!booking || saved.current) return;
 
-  savedRef.current = true;
+    saved.current = true;
 
-  const saveBooking = async () => {
-    try {
-      console.log("BOOKING DATA:", booking);
+    const saveBooking = async () => {
+      try {
+        const response = await API.post("/bookings", booking);
 
-      if (!booking) return;
-      console.log("BOOKING OBJECT:", booking);
-  const response = await API.get(
-  "/bookings",
-  {
-    studentId: booking.studentId,
-    libraryId: booking.libraryId,
-    libraryName: booking.libraryName,
-    seatNumber: booking.seatNumber,
-    slot: booking.slotTime,
-    planDuration: booking.planDuration,
-    amount: booking.amount,
-  }
-);
+        console.log(response.data);
 
-      console.log("BOOKING RESPONSE:", response.data);
-    } catch (error) {
-      console.error("BOOKING ERROR:", error);
-      console.log(error.response?.data);
-    }
-  };
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-  saveBooking();
-}, [booking]);
+    saveBooking();
+  }, [booking]);
+
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-5">
-      <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
 
-        <div className="text-center">
-          <div className="text-6xl mb-4">
-            ⏳
-          </div>
+      <div className="bg-white rounded-3xl shadow-xl p-8 w-[420px]">
 
-          <h1 className="text-3xl font-bold">
-            Booking Pending
-          </h1>
+        <h1 className="text-3xl font-bold text-center">
+          Booking Pending
+        </h1>
 
-          <p className="text-slate-500 mt-3">
-            Waiting for librarian approval.
-          </p>
-        </div>
+        <p className="text-center text-slate-500 mt-2">
+          Waiting for librarian approval.
+        </p>
 
         {booking && (
-          <div className="mt-6 border rounded-xl p-4">
+
+          <div className="mt-6 space-y-2">
 
             <p>
-              <strong>Library:</strong>{" "}
-              {booking.libraryName}
+              <strong>Library:</strong> {booking.libraryName}
             </p>
 
-            <p className="mt-2">
-              <strong>Slot:</strong>{" "}
-              {booking.slotTime}
+            <p>
+              <strong>Seat:</strong> {booking.seatNumber}
             </p>
 
-            <p className="mt-2">
-              <strong>Seat:</strong>{" "}
-              {booking.seatNumber}
+            <p>
+              <strong>Slot:</strong> {booking.slotSnapshot.name}
             </p>
 
-            <p className="mt-2">
-              <strong>Plan:</strong>{" "}
-              {booking.planDuration} Month
+            <p>
+              <strong>Amount:</strong> ₹{booking.amount}
             </p>
 
-            <p className="mt-2">
-              <strong>Amount:</strong> ₹
-              {booking.amount}
-            </p>
+            <div className="pt-3">
+
+              <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
+                Pending
+              </span>
+
+            </div>
 
           </div>
+
         )}
 
         <button
-          onClick={() => navigate("/")}
-          className="mt-6 w-full bg-blue-600 text-white py-3 rounded-xl"
+          onClick={() => navigate("/student-dashboard")}
+          className="mt-8 w-full bg-blue-600 text-white py-3 rounded-xl"
         >
-          Back Home
+          Back to Dashboard
         </button>
 
       </div>
+
     </div>
   );
 }

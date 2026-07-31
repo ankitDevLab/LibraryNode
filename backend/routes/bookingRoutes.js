@@ -12,34 +12,35 @@ router.post("/", async (req, res) => {
     console.log("🔥 POST /api/bookings HIT");
     console.log(req.body);
 
-    const booking = await Booking.create(req.body);
-    console.log("Booking Saved:");
-console.log(booking);
-await Seat.findOneAndUpdate(
-  {
-    libraryId: req.body.libraryId,
-    seatNumber: req.body.seatNumber,
-  },
-  {
-    status: "pending",
-    studentId: req.body.studentId,
-  },
-  { new: true }
-);
+    // Create booking
+    const booking = await Booking.create({
+      ...req.body,
+      status: "Pending",
+    });
 
-console.log("Seat Updated:", seat);
+    console.log("Booking Saved:");
+    console.log(booking);
+
+    // Update seat status
+    const seat = await Seat.findOneAndUpdate(
+      {
+        libraryId: req.body.libraryId,
+        seatNumber: req.body.seatNumber,
+      },
+      {
+        status: "pending",
+        studentId: req.body.studentId,
+      },
+      { new: true }
+    );
+
+    console.log("Seat Updated:");
+    console.log(seat);
 
     res.status(201).json({
       success: true,
       booking,
     });
-  const seat = await Seat.findOne({
-  libraryId: req.body.libraryId,
-  seatNumber: req.body.seatNumber,
-});
-
-console.log("Seat After Update:");
-console.log(seat);
 
   } catch (error) {
     console.error(error);
@@ -56,13 +57,14 @@ console.log(seat);
 // =========================
 router.get("/", async (req, res) => {
   try {
-    const bookings = await Booking.find().populate("studentId");
-    console.log("========== NEW BOOKING ==========");
-    console.log(req.body);
+    const bookings = await Booking.find()
+      .populate("studentId");
+
     res.json({
       success: true,
       bookings,
     });
+
   } catch (error) {
     console.error(error);
 
@@ -78,10 +80,15 @@ router.get("/", async (req, res) => {
 // =========================
 router.patch("/:id/approve", async (req, res) => {
   try {
+
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
-      { status: "Approved" },
-      { new: true }
+      {
+        status: "Approved",
+      },
+      {
+        new: true,
+      }
     );
 
     if (!booking) {
@@ -105,6 +112,7 @@ router.patch("/:id/approve", async (req, res) => {
       success: true,
       booking,
     });
+
   } catch (error) {
     console.error(error);
 
@@ -120,10 +128,15 @@ router.patch("/:id/approve", async (req, res) => {
 // =========================
 router.patch("/:id/reject", async (req, res) => {
   try {
+
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
-      { status: "Rejected" },
-      { new: true }
+      {
+        status: "Rejected",
+      },
+      {
+        new: true,
+      }
     );
 
     if (!booking) {
@@ -148,6 +161,7 @@ router.patch("/:id/reject", async (req, res) => {
       success: true,
       booking,
     });
+
   } catch (error) {
     console.error(error);
 

@@ -1,26 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import API from "../api/axios";
+
 function StudentManagement() {
-  const bookings =
-    JSON.parse(localStorage.getItem("bookings")) || [];
-
-  const profile =
-    JSON.parse(localStorage.getItem("studentProfile")) || {};
-
+  const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
 
-  const students = bookings.filter((student) =>
-    (
-      student.studentName ||
-      profile.name ||
-      ""
-    )
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const fetchStudents = async () => {
+    try {
+      const response = await API.get("/bookings");
+
+      setStudents(response.data.bookings);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const filteredStudents = students.filter((student) =>
+    (student.studentId?.name || "")
       .toLowerCase()
       .includes(search.toLowerCase())
   );
 
   return (
     <div className="min-h-screen bg-slate-100 p-5">
-
       <div className="max-w-6xl mx-auto">
 
         <h1 className="text-3xl font-bold mb-6">
@@ -31,52 +37,70 @@ function StudentManagement() {
           type="text"
           placeholder="Search Student..."
           value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
+          onChange={(e) => setSearch(e.target.value)}
           className="w-full border p-3 rounded-xl mb-6"
         />
 
         <div className="grid gap-4">
 
-          {students.length === 0 ? (
+          {filteredStudents.length === 0 ? (
             <div className="bg-white p-5 rounded-xl shadow">
               No Students Found
             </div>
           ) : (
-            students.map((student) => (
+            filteredStudents.map((student) => (
               <div
-                key={student.id}
-                className="bg-white p-5 rounded-xl shadow"
+                key={student._id}
+                className="bg-white rounded-xl shadow p-5"
               >
                 <h2 className="text-xl font-bold">
-                  {student.studentName ||
-                    profile.name}
+                  {student.studentId?.name || "Unknown"}
                 </h2>
 
-                <p>
-                  <strong>Mobile:</strong>{" "}
-                  {profile.mobile}
+                <p className="mt-2">
+                  <strong>Email:</strong>{" "}
+                  {student.studentId?.email || "-"}
                 </p>
 
-                <p>
+                <p className="mt-2">
+                  <strong>Mobile:</strong>{" "}
+                  {student.studentId?.mobile || "-"}
+                </p>
+
+                <p className="mt-2">
                   <strong>Library:</strong>{" "}
                   {student.libraryName}
                 </p>
 
-                <p>
+                <p className="mt-2">
                   <strong>Seat:</strong>{" "}
                   {student.seatNumber}
                 </p>
 
-                <p>
-                  <strong>Slot:</strong>{" "}
-                  {student.slotTime}
+                <p className="mt-2">
+                  <strong>Plan:</strong>{" "}
+                  {student.planDuration} Month
                 </p>
 
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {student.status}
+                <p className="mt-2">
+                  <strong>Amount:</strong> ₹
+                  {student.amount}
+                </p>
+
+                <p className="mt-2">
+                  <strong>Status:</strong>
+
+                  <span
+                    className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${
+                      student.status === "Approved"
+                        ? "bg-green-100 text-green-700"
+                        : student.status === "Rejected"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}
+                  >
+                    {student.status || "Pending"}
+                  </span>
                 </p>
               </div>
             ))
@@ -85,7 +109,6 @@ function StudentManagement() {
         </div>
 
       </div>
-
     </div>
   );
 }

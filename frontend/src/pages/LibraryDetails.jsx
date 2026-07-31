@@ -209,13 +209,30 @@ const slots = [
             <button
                 onClick={() =>
                 navigate("/available-seats", {
-                  state: {
-                    libraryId: library._id,
-                    libraryName: library.name,
-                    slotId: selectedSlot.id,
-                    slotTime: `${selectedSlot.startTime} - ${selectedSlot.endTime}`,
-                    slotPrice: selectedSlot.price,
-                  },
+  state: {
+    libraryId: library._id,
+    libraryName: library.name,
+
+    slotId: selectedSlot.id,
+
+    slotTime: `${selectedSlot.startTime} - ${selectedSlot.endTime}`,
+
+    slotPrice: selectedSlot.price,
+
+    slotSnapshot: {
+      name: `${selectedSlot.startTime} - ${selectedSlot.endTime}`,
+      startTime: selectedSlot.startTime,
+      endTime: selectedSlot.endTime,
+      price: selectedSlot.price,
+    },
+
+    startDate: new Date(),
+
+    endDate: new Date(
+      new Date().setMonth(new Date().getMonth() + 1)
+    ),
+  },
+
                 })
               }
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl"

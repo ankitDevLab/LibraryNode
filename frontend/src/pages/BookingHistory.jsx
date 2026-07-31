@@ -18,13 +18,10 @@ function BookingHistory() {
         localStorage.getItem("studentProfile")
       );
 
-      const response = await API.get(
-        "/bookings"
-      );
+      const response = await API.get("/bookings");
 
       const myBookings = response.data.bookings.filter(
-        (booking) =>
-          booking.studentId?._id === student?._id
+        (booking) => booking.studentId?._id === student?._id
       );
 
       setBookings(myBookings);
@@ -33,24 +30,24 @@ function BookingHistory() {
     }
   };
 
-  // Current approved booking
-  const currentBooking = bookings.find(
-    (booking) => booking.status === "Approved"
-  );
+  const currentBooking =
+    bookings.find((b) => b.status === "Approved") || null;
 
-  if (currentBooking) {
-    localStorage.setItem(
-      "currentBooking",
-      JSON.stringify(currentBooking)
-    );
-  }
+  useEffect(() => {
+    if (currentBooking) {
+      localStorage.setItem(
+        "currentBooking",
+        JSON.stringify(currentBooking)
+      );
+    }
+  }, [currentBooking]);
 
-  // Filter bookings
   const filteredBookings = (
     filter === "All"
       ? bookings
       : bookings.filter(
-          (booking) => booking.status === filter
+          (booking) =>
+            (booking.status || "Pending") === filter
         )
   ).filter(
     (booking) => booking._id !== currentBooking?._id
@@ -58,13 +55,13 @@ function BookingHistory() {
 
   return (
     <div className="min-h-screen bg-slate-100 p-5">
-
       <div className="max-w-5xl mx-auto">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
 
-          <h1 className="text-4xl font-bold text-slate-800">
+        <div className="flex justify-between items-center mb-6">
+
+          <h1 className="text-4xl font-bold">
             Booking History
           </h1>
 
@@ -78,8 +75,10 @@ function BookingHistory() {
         </div>
 
         {/* Current Library */}
+
         {currentBooking && (
-          <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-3xl p-6 shadow-lg mb-6">
+
+          <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-3xl p-6 mb-6">
 
             <h2 className="text-2xl font-bold">
               Current Library
@@ -94,10 +93,12 @@ function BookingHistory() {
             </p>
 
             <p>
-              ⏰ {currentBooking.slot}
+              ⏰{" "}
+              {currentBooking.slotSnapshot?.name ||
+                currentBooking.slot}
             </p>
 
-            <p className="font-bold mt-2">
+            <p className="mt-2 font-bold text-green-200">
               ✅ Approved
             </p>
 
@@ -113,9 +114,11 @@ function BookingHistory() {
             </button>
 
           </div>
+
         )}
 
-        {/* Filters */}
+        {/* Filter */}
+
         <div className="flex gap-3 mb-6 flex-wrap">
 
           {[
@@ -124,6 +127,7 @@ function BookingHistory() {
             "Pending",
             "Rejected",
           ].map((status) => (
+
             <button
               key={status}
               onClick={() => setFilter(status)}
@@ -135,11 +139,13 @@ function BookingHistory() {
             >
               {status}
             </button>
+
           ))}
 
         </div>
 
-        {/* No Bookings */}
+        {/* Booking Cards */}
+
         {filteredBookings.length === 0 ? (
 
           <div className="bg-white p-8 rounded-2xl shadow text-center">
@@ -148,13 +154,9 @@ function BookingHistory() {
               No Bookings Found
             </h2>
 
-            <p className="text-slate-500 mt-2">
-              Book a library seat to get started.
-            </p>
-
             <button
               onClick={() => navigate("/libraries")}
-              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg"
+              className="mt-5 bg-blue-600 text-white px-5 py-2 rounded-lg"
             >
               Browse Libraries
             </button>
@@ -171,42 +173,53 @@ function BookingHistory() {
             >
 
               <p>
-                <strong>Library:</strong> {booking.libraryName}
+                <strong>Library:</strong>{" "}
+                {booking.libraryName}
               </p>
 
               <p className="mt-2">
-                <strong>Seat:</strong> {booking.seatNumber}
+                <strong>Seat:</strong>{" "}
+                {booking.seatNumber}
               </p>
 
               <p className="mt-2">
-                <strong>Slot:</strong> {booking.slot}
+                <strong>Slot:</strong>{" "}
+                {booking.slotSnapshot?.name ||
+                  booking.slot}
               </p>
 
               <p className="mt-2">
-                <strong>Plan:</strong> {booking.planDuration} Month
+                <strong>Plan:</strong>{" "}
+                {booking.planDuration} Month
               </p>
 
               <p className="mt-2">
-                <strong>Amount:</strong> ₹{booking.amount}
+                <strong>Amount:</strong> ₹
+                {booking.amount}
               </p>
 
               <div className="mt-4">
 
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-bold ${
-                    booking.status === "Approved"
+                  className={`px-3 py-1 rounded-full font-bold text-sm ${
+                    (booking.status || "Pending") ===
+                    "Approved"
                       ? "bg-green-100 text-green-700"
-                      : booking.status === "Rejected"
+                      : (booking.status ||
+                          "Pending") ===
+                        "Rejected"
                       ? "bg-red-100 text-red-700"
                       : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
-                  {booking.status}
+                  {booking.status || "Pending"}
                 </span>
 
               </div>
 
-              {booking.status === "Approved" && (
+              {(booking.status || "Pending") ===
+                "Approved" && (
+
                 <button
                   onClick={() =>
                     navigate("/student-pass", {
@@ -217,15 +230,16 @@ function BookingHistory() {
                 >
                   View QR Pass
                 </button>
+
               )}
 
             </div>
 
           ))
+
         )}
 
       </div>
-
     </div>
   );
 }

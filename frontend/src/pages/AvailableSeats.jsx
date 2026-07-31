@@ -1,80 +1,24 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import API from "../api/axios";
+const bookSeat = (seat) => {
+  navigate("/booking-status", {
+    state: {
+      studentId: student._id,
 
-function AvailableSeats() {
-  const navigate = useNavigate();
-  const { state } = useLocation();
+      libraryId: state.libraryId,
+      libraryName: state.libraryName,
 
-  const [seats, setSeats] = useState([]);
+      seatId: seat._id,
+      seatNumber: seat.seatNumber,
 
-  const student = JSON.parse(
-    localStorage.getItem("studentProfile")
-  );
+      slotId: state.slotId,
+      slotSnapshot: state.slotSnapshot,
 
-  useEffect(() => {
-    fetchSeats();
-  }, []);
+      planDuration: 1,
+      amount: state.slotPrice,
 
-  const fetchSeats = async () => {
-    try {
-        const response = await API.get(
-          `/seats/${state.libraryId}`
-        );
+      startDate: state.startDate,
+      endDate: state.endDate,
 
-      setSeats(response.data.seats);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const bookSeat = (seat) => {
-    navigate("/booking-status", {
-      state: {
-        studentId: student._id,
-        libraryId: state.libraryId,
-        libraryName: state.libraryName,
-        seatNumber: seat.seatNumber,
-        slotTime: state.slotTime,
-        planDuration: 1,
-        amount: state.slotPrice,
-      },
-    });
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-100 p-5">
-      <div className="max-w-6xl mx-auto">
-
-        <h1 className="text-3xl font-bold mb-6">
-          Available Seats
-        </h1>
-
-        <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-
-          {seats.map((seat) => (
-            <button
-              key={seat._id}
-              disabled={seat.status !== "available"}
-              onClick={() => bookSeat(seat)}
-              className={`p-5 rounded-xl font-bold shadow transition
-              ${
-                seat.status === "available"
-                  ? "bg-green-500 text-white hover:bg-green-600"
-                  : seat.status === "pending"
-                  ? "bg-yellow-500 text-white cursor-not-allowed"
-                  : "bg-red-500 text-white cursor-not-allowed"
-              }`}
-            >
-              {seat.seatNumber}
-            </button>
-          ))}
-
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
-export default AvailableSeats;
+      status: "Pending",
+    },
+  });
+};
