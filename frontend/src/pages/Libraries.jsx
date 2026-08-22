@@ -14,11 +14,19 @@ function Libraries() {
 
   const fetchLibraries = async () => {
     try {
-      const response = await API.get("/libraries/with-owners");
+      let response;
+      try {
+        response = await API.get("/libraries/with-owners");
+      } catch (err) {
+        console.warn("with-owners request failed, falling back to /libraries endpoint:", err);
+        response = await API.get("/libraries");
+      }
 
-      setAllLibraries(response.data.libraries);
+      if (response?.data?.libraries) {
+        setAllLibraries(response.data.libraries);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Failed to fetch libraries:", error);
     } finally {
       setLoading(false);
     }

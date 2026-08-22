@@ -234,8 +234,12 @@ router.get("/", async (req, res) => {
 // =====================================
 // GET SINGLE LIBRARY
 // =====================================
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
   try {
+    if (req.params.id === "with-owners") {
+      return next();
+    }
+
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({
         success: false,

@@ -13,26 +13,37 @@ function LibrarianLogin() {
     try {
       setErrorMessage("");
 
+      const cleanEmail = email.trim().toLowerCase();
+      if (!cleanEmail || !password) {
+        setErrorMessage("Please enter both email and password.");
+        return;
+      }
+
       const response = await API.post("/librarians/login", {
-        email,
+        email: cleanEmail,
         password,
       });
 
-      localStorage.setItem(
-        "librarian",
-        JSON.stringify(response.data.librarian)
-      );
+      const lib = response.data.librarian;
+      localStorage.setItem("librarian", JSON.stringify(lib));
 
-      localStorage.setItem(
-        "libraryId",
-        response.data.librarian.libraryId
-      );
+      const rawLibraryId = lib?.libraryId;
+      const libraryId = typeof rawLibraryId === "object" ? rawLibraryId?._id : rawLibraryId;
+
+      if (libraryId) {
+        localStorage.setItem("libraryId", String(libraryId));
+      }
+
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
 
       navigate("/librarian-dashboard");
     } catch (error) {
-      console.error(error);
+      console.error("Librarian login error:", error);
 
       setErrorMessage(
+        error.response?.data?.message ||
         "You are not a valid librarian. Please contact LibrarySphere Administration."
       );
     }
