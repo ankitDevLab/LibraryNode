@@ -1,0 +1,28 @@
+User-agent: *
+Allow: /
+Allow: /library-seat-booking
+Allow: /library-management-system
+Allow: /libraries
+Allow: /quiz
+Allow: /upsc-quiz
+Allow: /upsc-pyq
+Allow: /ssc-quiz
+Allow: /ssc-pyq
+
+# Disallow private user & librarian dashboard portals
+Disallow: /student-dashboard
+Disallow: /librarian-dashboard
+Disallow: /student-profile
+Disallow: /student-id-card
+Disallow: /booking-history
+Disallow: /notifications
+Disallow: /verify-student
+Disallow: /student-management
+Disallow: /attendance
+Disallow: /student-pass
+Disallow: /attendance-scanner
+Disallow: /available-seats
+Disallow: /quiz-history
+Disallow: /api/
+
+Sitemap: https://librarynode.online/sitemap.xml

@@ -1,12 +1,23 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import LibraryNodeBrand from "../components/LibraryNodeBrand";
+import SEOHead from "../components/SEOHead";
+import PublicNavbar from "../components/PublicNavbar";
+import PublicFooter from "../components/PublicFooter";
 
 function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col justify-between items-center p-6 relative overflow-hidden font-sans">
-      <div className="flex-1 flex flex-col items-center justify-center z-10 w-full relative max-w-2xl py-10">
+    <div className="min-h-screen flex flex-col justify-between bg-slate-50 font-sans">
+      <SEOHead
+        title="Library Node | Smart Library Seat Booking & Management System"
+        description="Library Node is India's leading library seat reservation and library management software. Find quiet study spaces, book study seats online, and access competitive exam quizzes for UPSC and SSC."
+        canonicalPath="/"
+      />
+
+      <PublicNavbar activePage="/" />
+
+      <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 w-full max-w-5xl mx-auto py-10">
         {/* Main Card */}
         <div className="w-full max-w-md bg-white rounded-[2rem] shadow-xl border border-slate-100 p-8 text-center mb-8">
           {/* Logo & Branding */}
@@ -90,10 +101,65 @@ function Home() {
           </div>
         </div>
 
-        {/* Feature Row */}
-        <div className="w-full max-w-lg bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+        {/* Public SEO Quick Links Grid */}
+        <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Link
+            to="/library-seat-booking"
+            className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs hover:border-blue-500 transition space-y-2 text-left group"
+          >
+            <div className="text-2xl">🪑</div>
+            <h4 className="text-xs font-bold text-slate-900 group-hover:text-blue-600">
+              Library Seat Booking
+            </h4>
+            <p className="text-[11px] text-slate-500 leading-tight">
+              Reserve quiet study seats online in real time.
+            </p>
+          </Link>
+
+          <Link
+            to="/library-management-system"
+            className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs hover:border-blue-500 transition space-y-2 text-left group"
+          >
+            <div className="text-2xl">🏫</div>
+            <h4 className="text-xs font-bold text-slate-900 group-hover:text-blue-600">
+              Library Software
+            </h4>
+            <p className="text-[11px] text-slate-500 leading-tight">
+              Digital seat allocation & QR attendance for library owners.
+            </p>
+          </Link>
+
+          <Link
+            to="/libraries"
+            className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs hover:border-blue-500 transition space-y-2 text-left group"
+          >
+            <div className="text-2xl">🔍</div>
+            <h4 className="text-xs font-bold text-slate-900 group-hover:text-blue-600">
+              Browse Libraries
+            </h4>
+            <p className="text-[11px] text-slate-500 leading-tight">
+              Discover verified study spaces across your city.
+            </p>
+          </Link>
+
+          <Link
+            to="/quiz"
+            className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs hover:border-blue-500 transition space-y-2 text-left group"
+          >
+            <div className="text-2xl">📚</div>
+            <h4 className="text-xs font-bold text-slate-900 group-hover:text-blue-600">
+              Exam Quiz & PYQ
+            </h4>
+            <p className="text-[11px] text-slate-500 leading-tight">
+              UPSC & SSC practice questions, MCQs & mock tests.
+            </p>
+          </Link>
+        </div>
+
+        {/* Feature Highlights Row */}
+        <div className="w-full max-w-2xl bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center sm:text-left">
-            <div className="sm:border-r border-slate-200/50 sm:pr-3 last:border-0">
+            <div className="sm:border-r border-slate-200 sm:pr-3">
               <h4 className="text-xs font-bold text-slate-800 mb-0.5">
                 ⚡ Smart Seat Booking
               </h4>
@@ -102,7 +168,7 @@ function Home() {
               </p>
             </div>
 
-            <div className="sm:border-r border-slate-200/50 sm:px-3 last:border-0">
+            <div className="sm:border-r border-slate-200 sm:px-3">
               <h4 className="text-xs font-bold text-slate-800 mb-0.5">
                 🛡️ Secure & Reliable
               </h4>
@@ -123,12 +189,7 @@ function Home() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="w-full text-center py-4 z-10 mt-auto">
-        <p className="text-xs text-slate-400 font-medium">
-          © 2025 Library Node. All rights reserved.
-        </p>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }

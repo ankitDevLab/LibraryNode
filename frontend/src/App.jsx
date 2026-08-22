@@ -26,6 +26,15 @@ const AttendanceScanner = lazy(() => import("./pages/AttendanceScanner"));
 const AvailableSeats = lazy(() => import("./pages/AvailableSeats"));
 const Practice = lazy(() => import("./pages/Practice"));
 
+// SEO-Friendly Public Pages
+const LibrarySeatBooking = lazy(() => import("./pages/LibrarySeatBooking"));
+const LibraryManagementSystem = lazy(() => import("./pages/LibraryManagementSystem"));
+const QuizHub = lazy(() => import("./pages/QuizHub"));
+const UPSCQuiz = lazy(() => import("./pages/UPSCQuiz"));
+const UPSCPyq = lazy(() => import("./pages/UPSCPyq"));
+const SSCQuiz = lazy(() => import("./pages/SSCQuiz"));
+const SSCPyq = lazy(() => import("./pages/SSCPyq"));
+
 function App() {
   return (
     <BrowserRouter>
@@ -38,16 +47,26 @@ function App() {
         }
       >
         <Routes>
+          {/* Main & Public SEO Routes */}
           <Route path="/" element={<Home />} />
+          <Route path="/library-seat-booking" element={<LibrarySeatBooking />} />
+          <Route path="/library-management-system" element={<LibraryManagementSystem />} />
+          <Route path="/libraries" element={<Libraries />} />
+          <Route path="/quiz" element={<QuizHub />} />
+          <Route path="/upsc-quiz" element={<UPSCQuiz />} />
+          <Route path="/upsc-pyq" element={<UPSCPyq />} />
+          <Route path="/ssc-quiz" element={<SSCQuiz />} />
+          <Route path="/ssc-pyq" element={<SSCPyq />} />
+
+          {/* Authentication & Existing Routes */}
           <Route path="/student-login" element={<StudentLogin />} />
           <Route path="/librarian-login" element={<LibrarianLogin />} />
           <Route path="/student-register" element={<StudentRegister />} />
+          <Route path="/librarian-register" element={<LibrarianRegister />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/librarian-dashboard" element={<LibrarianDashboard />} />
           <Route path="/booking-status" element={<BookingStatus />} />
-          <Route path="/libraries" element={<Libraries />} />
           <Route path="/library-details/:id" element={<LibraryDetails />} />
-          <Route path="/librarian-register" element={<LibrarianRegister />} />
           <Route path="/student-profile" element={<StudentProfile />} />
           <Route path="/student-id-card" element={<StudentIDCard />} />
           <Route path="/booking-history" element={<BookingHistory />} />
