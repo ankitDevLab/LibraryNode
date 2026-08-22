@@ -12,12 +12,61 @@ function LibrarianDashboard() {
     JSON.parse(localStorage.getItem("librarian")) || {}
   );
 
-  // Profile Modal State
+  // Profile & Password Modal State
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [editOwnerName, setEditOwnerName] = useState(librarian.ownerName || "");
   const [photoUrl, setPhotoUrl] = useState(librarian.photo || "");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
+
+  // Change Password State
+  const [showChangePasswordSection, setShowChangePasswordSection] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("All password fields are required.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("New password and confirmation password must be the same.");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast.error("New password must be at least 8 characters long.");
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      const librarianId = librarian._id || librarian.id;
+      const response = await API.put(`/librarians/${librarianId}/change-password`, {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      if (response.data.success) {
+        toast.success(response.data.message || "Your password has been changed successfully.");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setShowChangePasswordSection(false);
+      }
+    } catch (error) {
+      const errMsg = error.response?.data?.message || "Failed to update password.";
+      toast.error(errMsg);
+    } finally {
+      setChangingPassword(false);
+    }
+  };
 
   useEffect(() => {
     if (librarian) {
@@ -763,6 +812,101 @@ const updateStatus = async (id, status) => {
                     {librarian.libraryId?.address || ""}, {librarian.libraryId?.city || ""}, {librarian.libraryId?.district || ""}, {librarian.libraryId?.state || ""}
                   </span>
                 </div>
+              </div>
+
+              {/* Change Password Section */}
+              <div className="border-t pt-4">
+                {!showChangePasswordSection ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowChangePasswordSection(true)}
+                    className="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 border border-blue-200"
+                  >
+                    🔑 Change Password
+                  </button>
+                ) : (
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <div className="flex justify-between items-center mb-1">
+                      <h4 className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                        🔒 Change Password
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowChangePasswordSection(false);
+                          setCurrentPassword("");
+                          setNewPassword("");
+                          setConfirmPassword("");
+                        }}
+                        className="text-xs text-slate-400 hover:text-slate-600 font-semibold"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Current Password
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="Enter current password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="w-full border border-slate-200 rounded-xl p-2.5 text-sm bg-white focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        New Password
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="Enter new password (min 8 chars)"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full border border-slate-200 rounded-xl p-2.5 text-sm bg-white focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Confirm New Password
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="Confirm new password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full border border-slate-200 rounded-xl p-2.5 text-sm bg-white focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={handleChangePassword}
+                        disabled={changingPassword}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2.5 rounded-xl font-bold transition disabled:opacity-50"
+                      >
+                        {changingPassword ? "Updating..." : "Update Password"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowChangePasswordSection(false);
+                          setCurrentPassword("");
+                          setNewPassword("");
+                          setConfirmPassword("");
+                        }}
+                        className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm px-4 py-2.5 rounded-xl font-semibold transition"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -239,6 +239,69 @@ router.put("/:id", async (req, res) => {
 });
 
 // =====================================
+// CHANGE LIBRARIAN PASSWORD
+// =====================================
+router.put("/:id/change-password", async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password, new password, and confirm password are required.",
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "New password and confirmation password must be the same.",
+      });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 8 characters long.",
+      });
+    }
+
+    const librarian = await Librarian.findById(req.params.id).select("+password");
+
+    if (!librarian) {
+      return res.status(404).json({
+        success: false,
+        message: "Librarian not found.",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, librarian.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Your current password is incorrect.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    librarian.password = hashedPassword;
+    await librarian.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Your password has been changed successfully.",
+    });
+  } catch (error) {
+    console.error("❌ [LIBRARIAN CHANGE PASSWORD] Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+});
+
+// =====================================
 // GET ALL LIBRARIANS
 // =====================================
 router.get("/", async (req, res) => {

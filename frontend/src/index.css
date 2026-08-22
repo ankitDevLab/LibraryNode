@@ -2,7 +2,7 @@
 
 /* Global Library Background Layout */
 body {
-  background-image: url('/library-background.png');
+  background-image: url('/library-background.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
