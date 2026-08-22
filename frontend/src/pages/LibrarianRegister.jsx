@@ -63,13 +63,16 @@ const librarianResponse = await API.post(
     libraryId: response.data.library._id,
   }
 );
-localStorage.setItem(
-  "librarian",
-  JSON.stringify(librarianResponse.data.librarian)
-);
+    const createdLibId = response.data.library._id;
+    const librarianObj = librarianResponse.data.librarian;
+
+    localStorage.setItem(
+      "librarian",
+      JSON.stringify(librarianObj)
+    );
     localStorage.setItem(
       "libraryId",
-      response.data.library._id
+      String(createdLibId)
     );
     toast.success("Library Created Successfully! Your library has been created successfully.", {
       duration: 4000,
