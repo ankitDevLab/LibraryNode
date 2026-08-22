@@ -118,7 +118,7 @@ function StudentProfile() {
           </h1>
 
           <p className="text-slate-500">
-            LibrarySphere Student
+            Library Node Student
           </p>
 
         </div>

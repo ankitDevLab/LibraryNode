@@ -130,7 +130,7 @@ function StudentPass() {
 
         <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-2xl p-5 mb-6">
           <h1 className="text-3xl font-bold">
-            LibrarySphere
+            Library Node
           </h1>
 
           <p>

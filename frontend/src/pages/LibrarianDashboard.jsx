@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { toast } from "react-hot-toast";
+import LibraryNodeBrand from "../components/LibraryNodeBrand";
 
 function LibrarianDashboard() {
   const navigate = useNavigate();
@@ -340,15 +341,8 @@ const updateStatus = async (id, status) => {
       <div className="bg-white shadow border-b">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           {/* Left Side: Brand Logo and Name */}
-          <div className="flex items-center gap-3 shrink-0">
-            <img
-              src="/logo.png"
-              alt="LibrarySphere Logo"
-              className="w-10 h-10 object-contain"
-            />
-            <h1 className="text-xl font-black text-blue-600 tracking-tight">
-              LibrarySphere
-            </h1>
+          <div className="shrink-0">
+            <LibraryNodeBrand size="md" />
           </div>
 
           {/* Center: Library Name (Visual Focus) */}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import LibraryNodeBrand from "../components/LibraryNodeBrand";
 
 function StudentLogin() {
   const navigate = useNavigate();
@@ -53,29 +54,10 @@ function StudentLogin() {
         >
           ← Back
         </button>
-        <div className="flex items-center justify-between px-6 py-4 bg-white shadow">
+        <div className="flex items-center justify-between px-6 py-4 bg-white shadow rounded-2xl mb-6">
+          <LibraryNodeBrand size="lg" showSubtitle subtitleText="Library Booking Platform" />
+        </div>
 
-  <div className="flex items-center gap-3">
-
-    <img
-      src="/logo.png"
-      alt="LibrarySphere"
-      className="w-12 h-12 object-contain"
-    />
-
-    <div>
-      <h1 className="text-2xl font-bold text-blue-600">
-        LibrarySphere
-      </h1>
-
-      <p className="text-xs text-slate-500">
-        Library Booking Platform
-      </p>
-    </div>
-
-  </div>
-
-</div>
         <h2 className="text-3xl font-bold text-center">
           Student Login
         </h2>
@@ -134,7 +116,7 @@ function StudentLogin() {
             )}
 
             <p className="text-slate-500 font-medium leading-relaxed mb-8">
-              Your login was successful. Welcome back to LibrarySphere!
+              Your login was successful. Welcome back to Library Node!
             </p>
 
             <button

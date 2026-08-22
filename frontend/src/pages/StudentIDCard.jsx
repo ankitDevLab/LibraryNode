@@ -42,7 +42,7 @@ function StudentIDCard() {
     const doc = new jsPDF();
 
     doc.setFontSize(22);
-    doc.text("LibrarySphere", 70, 20);
+    doc.text("Library Node", 70, 20);
 
     doc.setFontSize(14);
 
@@ -82,7 +82,7 @@ function StudentIDCard() {
       );
     }
 
-    doc.save("LibrarySphere-IDCard.pdf");
+    doc.save("LibraryNode-IDCard.pdf");
   };
 
   return (
@@ -92,7 +92,7 @@ function StudentIDCard() {
 <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-2xl p-5 mb-6">
 
   <h1 className="text-3xl font-bold">
-    LibrarySphere
+    Library Node
   </h1>
 
   <p className="opacity-90">

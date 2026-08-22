@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import LibraryNodeBrand from "../components/LibraryNodeBrand";
 
 function Home() {
   const navigate = useNavigate();
@@ -10,18 +11,7 @@ function Home() {
         <div className="w-full max-w-md bg-white rounded-[2rem] shadow-xl border border-slate-100 p-8 text-center mb-8">
           {/* Logo & Branding */}
           <div className="flex flex-col items-center mb-8">
-            <img
-              src="/logo.png"
-              alt="LibrarySphere Logo"
-              className="w-16 h-16 object-contain mb-4 filter drop-shadow-sm"
-            />
-            <h1 className="text-3xl font-black tracking-tight">
-              <span className="text-slate-800">Library</span>
-              <span className="text-blue-600">Sphere</span>
-            </h1>
-            <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-1">
-              Smart Library Seat Management System
-            </p>
+            <LibraryNodeBrand size="xl" stacked showSubtitle />
             <p className="text-sm font-semibold text-blue-600/80 mt-3 italic">
               Find your space. Book your seat. Focus better.
             </p>
@@ -74,6 +64,29 @@ function Home() {
                 ➔
               </span>
             </button>
+
+            {/* Register New Library Button */}
+            <button
+              onClick={() => navigate("/librarian-register")}
+              className="w-full flex items-center justify-between gap-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-2xl p-4 text-left transition transform hover:scale-[1.01] hover:shadow-sm group focus:outline-none"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl bg-white rounded-xl p-2.5 flex items-center justify-center text-emerald-600 shadow-sm">
+                  ➕
+                </span>
+                <div>
+                  <h3 className="text-base font-bold leading-tight text-emerald-900">
+                    Register New Library
+                  </h3>
+                  <p className="text-[11px] text-emerald-600 mt-0.5">
+                    Create a new library account & start listing seats
+                  </p>
+                </div>
+              </div>
+              <span className="text-lg font-bold group-hover:translate-x-1 transition mr-1 text-emerald-600">
+                ➔
+              </span>
+            </button>
           </div>
         </div>
 
@@ -113,7 +126,7 @@ function Home() {
       {/* Footer */}
       <footer className="w-full text-center py-4 z-10 mt-auto">
         <p className="text-xs text-slate-400 font-medium">
-          © 2025 LibrarySphere. All rights reserved.
+          © 2025 Library Node. All rights reserved.
         </p>
       </footer>
     </div>

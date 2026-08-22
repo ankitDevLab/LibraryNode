@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import LibraryNodeBrand from "../components/LibraryNodeBrand";
 
 function StudentDashboard() {
   const navigate = useNavigate();
@@ -60,19 +61,7 @@ function StudentDashboard() {
         {/* Header */}
         <div className="bg-white shadow-sm rounded-2xl px-6 py-4 flex justify-between items-center mb-6">
 
-          <div className="flex items-center gap-3">
-
-            <img
-              src="/logo.png"
-              alt="LibrarySphere"
-              className="w-12 h-12"
-            />
-
-            <h1 className="text-3xl font-bold text-blue-600">
-              LibrarySphere
-            </h1>
-
-          </div>
+          <LibraryNodeBrand size="lg" />
 
           <button onClick={() => navigate("/student-profile")}>
             <img

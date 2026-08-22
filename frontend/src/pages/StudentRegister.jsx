@@ -91,7 +91,7 @@ function StudentRegister() {
         </h2>
 
         <p className="text-center text-slate-500 mt-2 mb-8">
-          Create your LibrarySphere account
+          Create your Library Node account
         </p>
 
         <div className="space-y-4">
@@ -182,7 +182,7 @@ function StudentRegister() {
             </p>
 
             <p className="text-slate-500 font-medium leading-relaxed mb-8">
-              Your account has been registered successfully. Welcome to LibrarySphere!
+              Your account has been registered successfully. Welcome to Library Node!
             </p>
 
             <button

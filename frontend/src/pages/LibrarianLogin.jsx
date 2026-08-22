@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import LibraryNodeBrand from "../components/LibraryNodeBrand";
 
 function LibrarianLogin() {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ function LibrarianLogin() {
 
       setErrorMessage(
         error.response?.data?.message ||
-        "You are not a valid librarian. Please contact LibrarySphere Administration."
+        "You are not a valid librarian. Please contact Library Node Administration."
       );
     }
   };
@@ -54,22 +55,7 @@ function LibrarianLogin() {
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
         {/* Logo */}
         <div className="flex items-center justify-center mb-8">
-          <div className="flex items-center gap-3">
-            <img
-              src="/logo.png"
-              alt="LibrarySphere"
-              className="w-20 h-20 object-contain"
-            />
-
-            <div>
-              <h1 className="text-2xl font-bold text-blue-600">
-                LibrarySphere
-              </h1>
-              <p className="text-sm text-slate-500">
-                Library Booking Platform
-              </p>
-            </div>
-          </div>
+          <LibraryNodeBrand size="lg" showSubtitle subtitleText="Library Booking Platform" />
         </div>
 
         <h2 className="text-3xl font-bold text-center mb-6">
@@ -132,15 +118,22 @@ function LibrarianLogin() {
         </p>
 
         {/* Register Library Box */}
-        <div className="mt-6 border border-blue-200 bg-blue-50 rounded-2xl p-5">
+        <div className="mt-6 border border-blue-200 bg-blue-50/70 rounded-2xl p-5 space-y-3">
+          <button
+            type="button"
+            onClick={() => navigate("/librarian-register")}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition shadow-sm text-center flex items-center justify-center gap-2"
+          >
+            ➕ Register New Library Account
+          </button>
+
           <a
             href="https://wa.me/917520960847"
             target="_blank"
             rel="noreferrer"
-            className="flex flex-col items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition text-center"
+            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-semibold transition text-center text-sm"
           >
-            <span>💬 Contact on WhatsApp</span>
-            <span>If you want to register your library</span>
+            💬 Contact on WhatsApp Support
           </a>
         </div>
       </div>

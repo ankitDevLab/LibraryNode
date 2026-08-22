@@ -1,7 +1,7 @@
 {
-  "name": "librarysphere-backend",
+  "name": "library-node-backend",
   "version": "1.0.0",
-  "description": "LibrarySphere Backend API",
+  "description": "Library Node Backend API",
   "main": "server.js",
   "type": "commonjs",
   "author": "Ankit Kumar",

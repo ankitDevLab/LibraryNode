@@ -278,7 +278,7 @@ const librarianResponse = await API.post(
             </div>
 
             <p className="text-slate-500 font-medium leading-relaxed mb-8">
-              Your library has been registered successfully. Welcome to LibrarySphere!
+              Your library has been registered successfully. Welcome to Library Node!
             </p>
 
             <button
