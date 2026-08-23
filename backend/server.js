@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const compression = require("compression");
 const morgan = require("morgan");
 const path = require("path");
+const fs = require("fs");
 
 const connectDB = require("./config/db");
 
@@ -72,22 +73,43 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/custom-requests", customRequestRoutes);
 
 // ===============================
-// Serve Static Frontend & SPA Fallback for React Router
+// Locate Frontend Build Directory
 // ===============================
-const frontendDistPath = path.resolve(__dirname, "../frontend/dist");
+const possibleBuildPaths = [
+  path.resolve(__dirname, "../frontend/dist"),
+  path.resolve(process.cwd(), "frontend/dist"),
+  path.resolve(process.cwd(), "../frontend/dist"),
+  path.resolve(__dirname, "dist"),
+  path.resolve(process.cwd(), "dist"),
+];
 
-// Serve static frontend assets (CSS, JS, images, sitemap.xml, robots.txt, etc.)
+let frontendDistPath = possibleBuildPaths.find((p) =>
+  fs.existsSync(path.join(p, "index.html"))
+);
+
+if (!frontendDistPath) {
+  frontendDistPath = path.resolve(__dirname, "../frontend/dist");
+  console.warn(`⚠️ WARNING: index.html not found in build paths. Defaulting to: ${frontendDistPath}`);
+} else {
+  console.log(`✅ SPA frontend build location verified: ${frontendDistPath}`);
+  console.log(`✅ index.html path verified: ${path.join(frontendDistPath, "index.html")}`);
+}
+
+// Serve static frontend assets (JS, CSS, images, sitemap.xml, robots.txt)
 app.use(express.static(frontendDistPath));
 
-// Fallback for non-API GET requests to serve index.html (Express 5 compatible)
+// Express 5 compatible SPA Fallback for React Router (placed AFTER API routes & static assets)
 app.use((req, res, next) => {
   if (req.method === "GET" && !req.path.startsWith("/api/")) {
     const indexPath = path.join(frontendDistPath, "index.html");
-    return res.sendFile(indexPath, (err) => {
-      if (err) {
-        next();
-      }
-    });
+    if (fs.existsSync(indexPath)) {
+      return res.sendFile(indexPath, (err) => {
+        if (err && !res.headersSent) {
+          console.error(`❌ Error sending index.html: ${err.message}`);
+          next(err);
+        }
+      });
+    }
   }
   next();
 });
@@ -126,6 +148,7 @@ const startServer = async () => {
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+      console.log(`📁 Serving frontend from: ${frontendDistPath}`);
     });
   } catch (error) {
     console.error("❌ Failed to start server");
@@ -134,4 +157,5 @@ const startServer = async () => {
   }
 };
 
-startServer();
+startServer();
+
