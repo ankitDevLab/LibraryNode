@@ -1,10 +1,20 @@
 services:
-  - type: web
+  - type: static
     name: librarynode
+    buildCommand: npm --prefix frontend run build
+    staticPublishPath: ./frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  - type: web
+    name: librarysphere
     env: node
-    buildCommand: npm run build
-    startCommand: npm start
+    buildCommand: npm --prefix backend install
+    startCommand: npm --prefix backend start
     envVars:
       - key: NODE_ENV
         value: production
+
 
