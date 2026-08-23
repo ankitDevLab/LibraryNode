@@ -5,6 +5,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const compression = require("compression");
 const morgan = require("morgan");
+const path = require("path");
 
 const connectDB = require("./config/db");
 
@@ -24,7 +25,11 @@ const app = express();
 // ===============================
 // Security & Middleware
 // ===============================
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 app.use(compression());
 
 app.use(
@@ -40,12 +45,12 @@ app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 
 // ===============================
-// Routes
+// Backend API Routes
 // ===============================
-app.get("/", (req, res) => {
+app.get("/api/test", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "🚀 Library Node Backend Running",
+    message: "MongoDB Backend Working",
   });
 });
 
@@ -67,7 +72,28 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/custom-requests", customRequestRoutes);
 
 // ===============================
-// 404 Handler
+// Serve Static Frontend & SPA Fallback for React Router
+// ===============================
+const frontendDistPath = path.resolve(__dirname, "../frontend/dist");
+
+// Serve static frontend assets (CSS, JS, images, sitemap.xml, robots.txt, etc.)
+app.use(express.static(frontendDistPath));
+
+// Fallback for non-API GET requests to serve index.html (Express 5 compatible)
+app.use((req, res, next) => {
+  if (req.method === "GET" && !req.path.startsWith("/api/")) {
+    const indexPath = path.join(frontendDistPath, "index.html");
+    return res.sendFile(indexPath, (err) => {
+      if (err) {
+        next();
+      }
+    });
+  }
+  next();
+});
+
+// ===============================
+// 404 Handler for API / Unhandled Routes
 // ===============================
 app.use((req, res) => {
   res.status(404).json({
@@ -108,4 +134,4 @@ const startServer = async () => {
   }
 };
 
-startServer();
+startServer();
