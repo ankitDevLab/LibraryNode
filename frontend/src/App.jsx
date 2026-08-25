@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import SupportWidget from "./components/SupportWidget";
+import AnalyticsTracker from "./components/AnalyticsTracker";
 
 // Route-based lazy loading to split the production bundle into small, on-demand chunks
 const Home = lazy(() => import("./pages/Home"));
@@ -38,6 +39,7 @@ const SSCPyq = lazy(() => import("./pages/SSCPyq"));
 function App() {
   return (
     <BrowserRouter>
+      <AnalyticsTracker />
       <Toaster position="top-center" />
       <Suspense
         fallback={
