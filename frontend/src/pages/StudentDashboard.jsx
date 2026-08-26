@@ -25,16 +25,27 @@ function StudentDashboard() {
         if (!student?._id) return;
 
         // Fetch fresh profile info
-        const profileRes = await API.get(`/students/${student._id}`);
-        if (profileRes.data.success) {
-          const freshStudent = profileRes.data.student;
-          setStudent(freshStudent);
-          localStorage.setItem("studentProfile", JSON.stringify(freshStudent));
+        try {
+          const profileRes = await API.get(`/students/${student._id}`);
+          if (profileRes.data?.success) {
+            const freshStudent = profileRes.data.student;
+            setStudent(freshStudent);
+            localStorage.setItem("studentProfile", JSON.stringify(freshStudent));
+          }
+        } catch (err) {
+          console.warn("Student profile invalid or deleted:", err);
+          if (err.response?.status === 404 || err.response?.status === 400) {
+            localStorage.removeItem("studentProfile");
+            setStudent({});
+            return;
+          }
         }
+
+        if (!student?._id) return;
 
         // Fetch current booking (filtered by studentId on backend)
         const bookingsRes = await API.get(`/bookings?studentId=${student._id}`);
-        const myBookings = bookingsRes.data.bookings;
+        const myBookings = bookingsRes.data?.bookings || [];
 
         // Prioritize Approved, then Pending
         const approved = myBookings.find(

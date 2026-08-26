@@ -33,9 +33,24 @@ app.use(
 );
 app.use(compression());
 
+const allowedOrigins = [
+  "https://librarynode.online",
+  "https://www.librarynode.online",
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:5000",
+  "http://localhost:3000",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "*",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     credentials: true,
   })
 );

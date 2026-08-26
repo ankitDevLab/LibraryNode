@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import { toast } from "react-hot-toast";
 
 function AvailableSeats() {
   const navigate = useNavigate();
@@ -45,6 +46,12 @@ function AvailableSeats() {
   };
 
   const bookSeat = (seat) => {
+    if (!student?._id) {
+      toast.error("Please login as a student to book a seat.");
+      navigate("/student-login");
+      return;
+    }
+
     navigate("/booking-status", {
       state: {
         studentId: student._id,

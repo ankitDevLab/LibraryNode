@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
 
 const Student = require("../models/Student");
@@ -36,6 +37,7 @@ router.get("/", async (req, res) => {
     });
   }
 });
+
 // Student Login
 router.post("/login", async (req, res) => {
   try {
@@ -46,9 +48,9 @@ router.post("/login", async (req, res) => {
     });
 
     if (!student) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
-        message: "Student not found",
+        message: "Student not registered. Please check your mobile number or register.",
       });
     }
 
@@ -67,6 +69,13 @@ router.post("/login", async (req, res) => {
 // Get Single Student
 router.get("/:id", async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid student ID.",
+      });
+    }
+
     const student = await Student.findById(req.params.id);
 
     if (!student) {
