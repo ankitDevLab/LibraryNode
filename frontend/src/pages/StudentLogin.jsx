@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import LibraryNodeBrand from "../components/LibraryNodeBrand";
@@ -11,15 +11,33 @@ function StudentLogin() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [studentName, setStudentName] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isSlow, setIsSlow] = useState(false);
+  const slowTimerRef = useRef(null);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
+    };
+  }, []);
 
   const loginStudent = async () => {
     try {
+      setLoading(true);
+      setIsSlow(false);
+
+      // Start a 5s timer — if the request hasn't resolved, show cold-start warning
+      slowTimerRef.current = setTimeout(() => setIsSlow(true), 5000);
+
       const response = await API.post(
         "/students/login",
         {
           mobile,
         }
       );
+
+      clearTimeout(slowTimerRef.current);
 
       localStorage.setItem(
         "studentProfile",
@@ -29,6 +47,7 @@ function StudentLogin() {
       setStudentName(response.data.student.name || "");
       setShowSuccessModal(true);
     } catch (error) {
+      clearTimeout(slowTimerRef.current);
       console.error(error);
 
       console.log(
@@ -41,6 +60,9 @@ function StudentLogin() {
         "Your login ID or credentials are not valid. Please check and try again."
       );
       setShowErrorModal(true);
+    } finally {
+      setLoading(false);
+      setIsSlow(false);
     }
   };
 
@@ -77,10 +99,32 @@ function StudentLogin() {
 
         <button
           onClick={loginStudent}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl"
+          disabled={loading}
+          className={`w-full py-3 rounded-xl text-white font-semibold transition-all ${
+            loading
+              ? "bg-blue-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
-          Login
+          {loading ? (
+            <>
+              <span className="auth-spinner" />
+              Logging in...
+            </>
+          ) : (
+            "Login"
+          )}
         </button>
+
+        {/* Cold-start warning — appears after 5s of waiting */}
+        {isSlow && (
+          <div className="cold-start-warning">
+            <span className="cold-start-icon">⏳</span>
+            <span>
+              First login may take up to a minute while the server wakes up. Please wait...
+            </span>
+          </div>
+        )}
 
         <p className="text-center mt-6 text-slate-600">
           New Student?
@@ -158,4 +202,4 @@ function StudentLogin() {
   );
 }
 
-export default StudentLogin;
+export default StudentLogin;

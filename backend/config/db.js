@@ -9,7 +9,13 @@ const connectDB = async () => {
     }
 
     console.time("⏱️  MongoDB Connection Time");
-    const conn = await mongoose.connect(mongoURI);
+    const conn = await mongoose.connect(mongoURI, {
+      maxPoolSize: 10,                  // Reuse up to 10 connections
+      serverSelectionTimeoutMS: 5000,   // Fail fast if no server found (5s instead of 30s default)
+      connectTimeoutMS: 10000,          // Fail fast on initial connection (10s)
+      socketTimeoutMS: 45000,           // Close idle sockets after 45s
+      retryWrites: true,                // Auto-retry writes on transient errors
+    });
     console.timeEnd("⏱️  MongoDB Connection Time");
 
     console.log("✅ MongoDB Connected");
@@ -19,6 +25,10 @@ const connectDB = async () => {
     // Monitor connection events
     mongoose.connection.on("disconnected", () => {
       console.warn("⚠️  MongoDB Disconnected");
+    });
+
+    mongoose.connection.on("reconnected", () => {
+      console.log("🔄 MongoDB Reconnected");
     });
 
     mongoose.connection.on("error", (err) => {
@@ -32,4 +42,5 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB;
+module.exports = connectDB;
+

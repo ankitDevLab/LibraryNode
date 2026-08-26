@@ -36,6 +36,7 @@ app.use(compression());
 const allowedOrigins = [
   "https://librarynode.online",
   "https://www.librarynode.online",
+  "https://librarynode.onrender.com",
   process.env.CLIENT_URL,
   "http://localhost:5173",
   "http://localhost:5000",

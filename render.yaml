@@ -9,12 +9,32 @@ services:
         destination: /index.html
 
   - type: web
-    name: librarysphere
+    name: librarynode-backend
     env: node
+    # ──────────────────────────────────────────────────────────────
+    # PLAN OPTIONS:
+    #   (no plan key) = free tier — spins down after ~15 min idle,
+    #     cold-starts on next request (~30-60s).
+    #   plan: starter  = $7/month — always running, no cold starts.
+    # Uncomment the line below to upgrade:
+    # plan: starter
+    # ──────────────────────────────────────────────────────────────
+    # FREE-TIER KEEP-ALIVE (if staying on free plan):
+    #   Use a free external cron service to ping the backend every
+    #   10 minutes so it never sleeps:
+    #
+    #   1. Go to https://cron-job.org (or https://uptimerobot.com)
+    #   2. Create a free account
+    #   3. Add a new cron job / monitor:
+    #        URL:      https://librarynode-backend.onrender.com/api/test
+    #        Method:   GET
+    #        Interval: Every 10 minutes
+    #   4. Save — the service will now stay awake 24/7
+    # ──────────────────────────────────────────────────────────────
     buildCommand: npm --prefix backend install
     startCommand: npm --prefix backend start
     envVars:
       - key: NODE_ENV
         value: production
-
-
+      - key: CLIENT_URL
+        value: https://librarynode.online

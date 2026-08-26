@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { toast } from "react-hot-toast";
@@ -11,7 +11,16 @@ function StudentRegister() {
   const [aadhar, setAadhar] = useState("");
   const [photo, setPhoto] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSlow, setIsSlow] = useState(false);
+  const slowTimerRef = useRef(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
+    };
+  }, []);
 
   const handlePhoto = async (e) => {
     try {
@@ -47,6 +56,10 @@ function StudentRegister() {
       }
 
       setLoading(true);
+      setIsSlow(false);
+
+      // Start a 5s timer — if the request hasn't resolved, show cold-start warning
+      slowTimerRef.current = setTimeout(() => setIsSlow(true), 5000);
 
       const response = await API.post(
         "/students",
@@ -64,8 +77,10 @@ function StudentRegister() {
         JSON.stringify(response.data.student)
       );
 
+      clearTimeout(slowTimerRef.current);
       setShowSuccessModal(true);
     } catch (error) {
+      clearTimeout(slowTimerRef.current);
       console.error(error);
       toast.error(
         error.response?.data?.message ||
@@ -73,6 +88,7 @@ function StudentRegister() {
       );
     } finally {
       setLoading(false);
+      setIsSlow(false);
     }
   };
   return (
@@ -158,10 +174,31 @@ function StudentRegister() {
                 onClick={registerStudent}
                 disabled={loading}
                 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl"
+                className={`w-full py-3 rounded-xl text-white font-semibold transition-all ${
+                  loading
+                    ? "bg-blue-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
           >
-            {loading ? "Registering..." : "Register"}
+            {loading ? (
+              <>
+                <span className="auth-spinner" />
+                Registering...
+              </>
+            ) : (
+              "Register"
+            )}
           </button>
+
+          {/* Cold-start warning — appears after 5s of waiting */}
+          {isSlow && (
+            <div className="cold-start-warning">
+              <span className="cold-start-icon">⏳</span>
+              <span>
+                First request may take up to a minute while the server wakes up. Please wait...
+              </span>
+            </div>
+          )}
 
         </div>
       </div>

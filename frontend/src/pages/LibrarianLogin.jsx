@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import LibraryNodeBrand from "../components/LibraryNodeBrand";
@@ -9,10 +9,22 @@ function LibrarianLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isSlow, setIsSlow] = useState(false);
+  const slowTimerRef = useRef(null);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
+    };
+  }, []);
 
   const loginLibrarian = async () => {
     try {
       setErrorMessage("");
+      setLoading(true);
+      setIsSlow(false);
 
       const cleanEmail = email.trim().toLowerCase();
       if (!cleanEmail || !password) {
@@ -20,11 +32,15 @@ function LibrarianLogin() {
         return;
       }
 
+      // Start a 5s timer — if the request hasn't resolved, show cold-start warning
+      slowTimerRef.current = setTimeout(() => setIsSlow(true), 5000);
+
       const response = await API.post("/librarians/login", {
         email: cleanEmail,
         password,
       });
 
+      clearTimeout(slowTimerRef.current);
       const lib = response.data.librarian;
       localStorage.setItem("librarian", JSON.stringify(lib));
 
@@ -41,12 +57,16 @@ function LibrarianLogin() {
 
       navigate("/librarian-dashboard");
     } catch (error) {
+      clearTimeout(slowTimerRef.current);
       console.error("Librarian login error:", error);
 
       setErrorMessage(
         error.response?.data?.message ||
         "You are not a valid librarian. Please contact Library Node Administration."
       );
+    } finally {
+      setLoading(false);
+      setIsSlow(false);
     }
   };
 
@@ -80,10 +100,32 @@ function LibrarianLogin() {
 
         <button
           onClick={loginLibrarian}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
+          disabled={loading}
+          className={`w-full py-3 rounded-lg text-white font-semibold transition-all ${
+            loading
+              ? "bg-blue-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
-          Login
+          {loading ? (
+            <>
+              <span className="auth-spinner" />
+              Logging in...
+            </>
+          ) : (
+            "Login"
+          )}
         </button>
+
+        {/* Cold-start warning — appears after 5s of waiting */}
+        {isSlow && (
+          <div className="cold-start-warning">
+            <span className="cold-start-icon">⏳</span>
+            <span>
+              First login may take up to a minute while the server wakes up. Please wait...
+            </span>
+          </div>
+        )}
 
         {/* Error Message */}
         {errorMessage && (

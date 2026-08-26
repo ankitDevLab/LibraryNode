@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { toast } from "react-hot-toast";
@@ -21,7 +21,16 @@ function LibrarianRegister() {
     const [slot3Price, setSlot3Price] = useState("");
     const [slot4Price, setSlot4Price] = useState("");
     const [loading, setLoading] = useState(false);
+    const [isSlow, setIsSlow] = useState(false);
+    const slowTimerRef = useRef(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+    // Clean up timer on unmount
+    useEffect(() => {
+      return () => {
+        if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
+      };
+    }, []);
 const createLibrary = async () => {
   try {
     if (
@@ -36,6 +45,11 @@ const createLibrary = async () => {
     }
 
     setLoading(true);  
+    setIsSlow(false);
+
+    // Start a 5s timer — if the request hasn't resolved, show cold-start warning
+    slowTimerRef.current = setTimeout(() => setIsSlow(true), 5000);
+
     const response = await API.post(
       "/libraries",
       {
@@ -78,8 +92,10 @@ const librarianResponse = await API.post(
       duration: 4000,
     });
 
+    clearTimeout(slowTimerRef.current);
     setShowSuccessModal(true);
   } catch (error) {
+    clearTimeout(slowTimerRef.current);
     console.error(error);
 
     toast.error(
@@ -88,6 +104,7 @@ const librarianResponse = await API.post(
     );
   } finally {
     setLoading(false);
+    setIsSlow(false);
   }
 };
   return (
@@ -248,10 +265,31 @@ const librarianResponse = await API.post(
     <button
   onClick={createLibrary}
   disabled={loading}
-  className="w-full mt-6 bg-blue-600 text-white py-3 rounded-lg"
+  className={`w-full mt-6 py-3 rounded-lg text-white font-semibold transition-all ${
+    loading
+      ? "bg-blue-400 cursor-not-allowed"
+      : "bg-blue-600 hover:bg-blue-700"
+  }`}
 >
-  {loading ? "Creating..." : "Create Library"}
+  {loading ? (
+    <>
+      <span className="auth-spinner" />
+      Creating...
+    </>
+  ) : (
+    "Create Library"
+  )}
 </button>
+
+        {/* Cold-start warning — appears after 5s of waiting */}
+        {isSlow && (
+          <div className="cold-start-warning">
+            <span className="cold-start-icon">⏳</span>
+            <span>
+              First request may take up to a minute while the server wakes up. Please wait...
+            </span>
+          </div>
+        )}
 
       </div>
 
