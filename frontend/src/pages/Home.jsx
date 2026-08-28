@@ -10,8 +10,8 @@ function Home() {
   return (
     <div className="min-h-screen flex flex-col justify-between bg-slate-50 font-sans">
       <SEOHead
-        title="Library Node | Smart Library Seat Booking & Management System"
-        description="Library Node is India's leading library seat reservation and library management software. Find quiet study spaces, book study seats online, and access competitive exam quizzes for UPSC and SSC."
+        title="LibraryNode — AI Exam Practice, PYQs & Library Seat Booking"
+        description="Practice competitive exams like JEE, NEET, SSC, Banking, and UPSC with LibraryNode. Generate custom mock tests using AI, practice previous year questions (PYQs), manage library spaces, and book study seats online."
         canonicalPath="/"
       />
 

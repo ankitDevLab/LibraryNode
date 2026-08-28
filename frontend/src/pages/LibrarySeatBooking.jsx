@@ -10,8 +10,8 @@ function LibrarySeatBooking() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-800">
       <SEOHead
-        title="Library Seat Booking Online | Find & Reserve Study Seats"
-        description="Book library study seats online with Library Node. Discover quiet study spaces, check real-time seat availability, select preferred time slots, and reserve your seat instantly."
+        title="Library Seat Booking Online — Find & Reserve Study Seats | LibraryNode"
+        description="Book library study seats online with LibraryNode. Discover quiet study spaces, check real-time seat availability, select preferred time slots, and reserve your seat instantly."
         canonicalPath="/library-seat-booking"
       />
 

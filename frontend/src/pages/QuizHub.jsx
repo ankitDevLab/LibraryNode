@@ -10,8 +10,8 @@ function QuizHub() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-800">
       <SEOHead
-        title="Free UPSC & SSC Quiz Practice & PYQ Mock Tests"
-        description="Practice UPSC Civil Services and SSC CGL/CHSL exam quizzes, previous year question (PYQ) sets, and topic-wise mock tests on Library Node."
+        title="Free AI Quiz Practice & PYQ Mock Tests for UPSC, SSC, JEE, NEET | LibraryNode"
+        description="Practice free mock quizzes, AI-generated test series, and previous year question (PYQ) sets for UPSC, SSC, JEE, NEET, and Banking exams on LibraryNode."
         canonicalPath="/quiz"
       />
 

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import API from "../api/axios";
 import AIQuizAttempt from "./AIQuizAttempt";
+import SEOHead from "../components/SEOHead";
 
 const BANKING_DOMAINS = [
   {
@@ -41,6 +42,47 @@ function Practice() {
   const { exam } = useParams();
   const navigate = useNavigate();
 
+  const getSEOData = () => {
+    const examLower = exam?.toLowerCase() || "";
+    if (examLower === "jee") {
+      return {
+        title: "JEE Questions & Practice — AI Question Generator",
+        description: "Generate and practice custom JEE questions using AI. Access mock test series, physics, chemistry, mathematics MCQs, and prepare for JEE Main & Advanced.",
+      };
+    }
+    if (examLower === "neet") {
+      return {
+        title: "NEET Questions & Practice — AI Question Generator",
+        description: "Generate and practice custom NEET questions using AI. Mock tests for physics, chemistry, biology, and interactive exam practice.",
+      };
+    }
+    if (examLower === "banking") {
+      return {
+        title: "Banking Exam Questions & Practice — AI Question Generator",
+        description: "Generate and practice custom Banking exam questions using AI. Access mock tests for PO, Clerk, Specialist Officer, and regulatory exams.",
+      };
+    }
+    if (examLower === "ssc") {
+      return {
+        title: "SSC Questions & Practice — AI Question Generator",
+        description: "Generate and practice custom SSC questions using AI. Tailored mock tests for CGL, CHSL, MTS, GK, reasoning, math, and English.",
+      };
+    }
+    if (examLower === "upsc") {
+      return {
+        title: "UPSC Questions & Practice — AI Question Generator",
+        description: "Generate and practice custom UPSC Civil Services questions using AI. Access Prelims General Studies (GS) Paper 1 & 2 mock tests.",
+      };
+    }
+    return {
+      title: `${formattedExam} Exam Questions & Practice — AI Question Generator`,
+      description: `Generate and practice custom ${formattedExam} exam questions using AI. Access mock tests and interactive competitive exam preparation.`,
+    };
+  };
+
+  const formattedExam = exam ? exam.toUpperCase() : "Quiz";
+  const seo = getSEOData();
+
   const student = JSON.parse(localStorage.getItem("studentProfile") || "{}");
   const studentId = student?._id;
 
@@ -53,8 +95,6 @@ function Practice() {
   // Quiz config
   const [numQuestions, setNumQuestions] = useState(25);
   const [level, setLevel] = useState("medium");
-
-  const formattedExam = exam ? exam.toUpperCase() : "Quiz";
 
   // On mount, check if banking domain is needed
   useEffect(() => {
@@ -120,6 +160,7 @@ function Practice() {
   if (step === "loading" || loadingPrefs) {
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col">
+        <SEOHead title={seo.title} description={seo.description} canonicalPath={`/quiz/${exam}`} />
         <Navbar title={`${formattedExam} Practice`} />
         <div className="flex-1 flex items-center justify-center p-5">
           <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
@@ -132,6 +173,7 @@ function Practice() {
   if (step === "domain-select") {
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col">
+        <SEOHead title={seo.title} description={seo.description} canonicalPath={`/quiz/${exam}`} />
         <Navbar title="Banking — Select Your Post" />
 
         <div className="flex-1 p-4 sm:p-6">
@@ -179,6 +221,7 @@ function Practice() {
   if (step === "exam-options") {
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col">
+        <SEOHead title={seo.title} description={seo.description} canonicalPath={`/quiz/${exam}`} />
         <Navbar title={`${formattedExam} Practice`} />
 
         <div className="flex-1 p-4 sm:p-6">
@@ -256,6 +299,7 @@ function Practice() {
   if (step === "quiz-config") {
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col">
+        <SEOHead title={seo.title} description={seo.description} canonicalPath={`/quiz/${exam}`} />
         <Navbar title={`${formattedExam} — Quiz Setup`} />
 
         <div className="flex-1 p-4 sm:p-6">
@@ -357,6 +401,7 @@ function Practice() {
   if (step === "quiz") {
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col">
+        <SEOHead title={seo.title} description={seo.description} canonicalPath={`/quiz/${exam}`} />
         <Navbar title={`${formattedExam} Quiz`} />
 
         <div className="flex-1">

@@ -38,8 +38,8 @@ function Libraries() {
   return (
     <div className="min-h-screen flex flex-col justify-between bg-slate-50 font-sans">
       <SEOHead
-        title="Find & Book Study Libraries Near You"
-        description="Browse verified reading libraries on Library Node. Check total study seats, city locations, shift pricing, and book your study space."
+        title="Find & Book Study Libraries Near You | LibraryNode"
+        description="Browse verified reading libraries on LibraryNode. Check total study seats, city locations, shift pricing, and book your study space."
         canonicalPath="/libraries"
       />
 

@@ -4,6 +4,11 @@ Allow: /library-seat-booking
 Allow: /library-management-system
 Allow: /libraries
 Allow: /quiz
+Allow: /quiz/jee
+Allow: /quiz/neet
+Allow: /quiz/banking
+Allow: /quiz/ssc
+Allow: /quiz/upsc
 Allow: /upsc-quiz
 Allow: /upsc-pyq
 Allow: /ssc-quiz

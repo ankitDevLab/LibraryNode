@@ -10,7 +10,7 @@ function LibraryManagementSystem() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-800">
       <SEOHead
-        title="Smart Library Management System & Seat Software"
+        title="Smart Library Management System & Seat Booking Software | LibraryNode"
         description="All-in-one digital library management system for study library owners. Manage seats, track student attendance via QR code, set slot pricing, and grow your library."
         canonicalPath="/library-management-system"
       />
