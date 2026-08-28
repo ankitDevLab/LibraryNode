@@ -41,7 +41,7 @@ function Home() {
                 </span>
                 <div>
                   <h3 className="text-base font-bold leading-tight">
-                    Student Login
+                    Student Login/Register
                   </h3>
                   <p className="text-[11px] text-blue-100 mt-0.5">
                     Book seats, manage your bookings

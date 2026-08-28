@@ -335,6 +335,49 @@ const updateStatus = async (id, status) => {
     navigate("/librarian-login", { replace: true });
   };
 
+  // Delete librarian account states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deletePhrase, setDeletePhrase] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (deletePhrase !== "DELETE") {
+      toast.error("Please type the confirmation phrase exactly: DELETE");
+      return;
+    }
+    if (!deletePassword) {
+      toast.error("Please enter your password.");
+      return;
+    }
+
+    try {
+      setDeletingAccount(true);
+      const librarianId = librarian._id || librarian.id;
+      const response = await API.delete(`/librarians/${librarianId}`, {
+        data: {
+          password: deletePassword,
+          confirmation: deletePhrase,
+        },
+      });
+
+      if (response.data.success) {
+        toast.success("Account deleted successfully.");
+        localStorage.removeItem("librarian");
+        localStorage.removeItem("libraryId");
+        setShowDeleteModal(false);
+        setShowProfileModal(false);
+        navigate("/", { replace: true });
+      }
+    } catch (error) {
+      console.error(error);
+      const errMsg = error.response?.data?.message || "Failed to delete account.";
+      toast.error(errMsg);
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
   return (
     
     <div className="min-h-screen bg-slate-100">
@@ -922,10 +965,101 @@ const updateStatus = async (id, status) => {
               </div>
 
               <button
+                type="button"
                 onClick={handleLibrarianLogout}
                 className="w-full bg-red-500 hover:bg-red-600 text-white py-3.5 rounded-xl font-bold transition shadow"
               >
                 🚪 Logout from Library Desktop
+              </button>
+
+              <hr className="my-4 border-slate-200" />
+              <div className="bg-red-50 rounded-xl p-4 border border-red-100 text-left">
+                <h4 className="text-sm font-bold text-red-800 mb-1 flex items-center gap-1.5">
+                  ⚠️ Danger Zone
+                </h4>
+                <p className="text-xs text-red-600 mb-3 leading-relaxed">
+                  Once deleted, your account, library space, seats, and student booking history will be permanently removed.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition shadow-sm"
+                >
+                  Delete My Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal for Librarian */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/60 z-[999999] flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 transition transform hover:scale-[1.01]">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-5 text-3xl text-red-600">
+              🚨
+            </div>
+
+            <h3 className="text-xl sm:text-2xl font-black text-slate-800 mb-2 tracking-tight text-center">
+              Are you absolutely sure?
+            </h3>
+
+            <p className="text-slate-500 font-medium text-xs sm:text-sm leading-relaxed mb-6 text-center">
+              Deleting your account will permanently delete your Library profile and cancel all future booking capabilities. Enter your password to proceed.
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider text-left">
+                  Account Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-red-500 focus:outline-none transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider text-left">
+                  Type <span className="text-red-600 font-black">DELETE</span> to confirm
+                </label>
+                <input
+                  type="text"
+                  placeholder="DELETE"
+                  value={deletePhrase}
+                  onChange={(e) => setDeletePhrase(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-red-500 focus:outline-none transition"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount || deletePhrase !== "DELETE" || !deletePassword}
+                className={`flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all shadow-md ${
+                  deletingAccount || deletePhrase !== "DELETE" || !deletePassword
+                    ? "bg-red-300 text-white cursor-not-allowed"
+                    : "bg-red-600 hover:bg-red-700 text-white hover:shadow-lg"
+                }`}
+              >
+                {deletingAccount ? "Deleting..." : "Permanently Delete"}
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeletePassword("");
+                  setDeletePhrase("");
+                }}
+                disabled={deletingAccount}
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3.5 rounded-2xl font-bold text-sm transition-all"
+              >
+                Cancel
               </button>
             </div>
           </div>

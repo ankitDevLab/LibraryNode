@@ -20,6 +20,7 @@ const attendanceRoutes = require("./routes/attendanceRoutes");
 const seatRoutes = require("./routes/seatRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const customRequestRoutes = require("./routes/customRequestRoutes");
+const quizRoutes = require("./routes/quizRoutes");
 
 const app = express();
 
@@ -87,6 +88,7 @@ app.use("/api/attendance", attendanceRoutes);
 app.use("/api/seats", seatRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/custom-requests", customRequestRoutes);
+app.use("/api/quiz", quizRoutes);
 
 // ===============================
 // Locate Frontend Build Directory

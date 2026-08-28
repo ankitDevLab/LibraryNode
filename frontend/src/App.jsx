@@ -26,6 +26,7 @@ const StudentPass = lazy(() => import("./pages/StudentPass"));
 const AttendanceScanner = lazy(() => import("./pages/AttendanceScanner"));
 const AvailableSeats = lazy(() => import("./pages/AvailableSeats"));
 const Practice = lazy(() => import("./pages/Practice"));
+const QuizHistory = lazy(() => import("./pages/QuizHistory"));
 
 // SEO-Friendly Public Pages
 const LibrarySeatBooking = lazy(() => import("./pages/LibrarySeatBooking"));
@@ -80,7 +81,7 @@ function App() {
           <Route path="/attendance-scanner" element={<AttendanceScanner />} />
           <Route path="/available-seats" element={<AvailableSeats />} />
           <Route path="/quiz/:exam" element={<Practice />} />
-          <Route path="/quiz-history" element={<Practice />} />
+          <Route path="/quiz-history" element={<QuizHistory />} />
         </Routes>
       </Suspense>
       <SupportWidget />

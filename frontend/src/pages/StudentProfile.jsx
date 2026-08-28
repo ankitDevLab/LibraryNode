@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import { toast } from "react-hot-toast";
 
 function StudentProfile() {
   const navigate = useNavigate();
@@ -11,6 +12,46 @@ function StudentProfile() {
   const [student, setStudent] = useState(stored);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Delete account modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [confirmMobile, setConfirmMobile] = useState("");
+  const [confirmPhrase, setConfirmPhrase] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (confirmPhrase !== "DELETE") {
+      toast.error("Please type the confirmation phrase exactly: DELETE");
+      return;
+    }
+    if (!confirmMobile) {
+      toast.error("Please enter your mobile number.");
+      return;
+    }
+
+    try {
+      setDeletingAccount(true);
+      const response = await API.delete(`/students/${student._id}`, {
+        data: {
+          mobile: confirmMobile,
+          confirmation: confirmPhrase,
+        },
+      });
+
+      if (response.data.success) {
+        toast.success("Account deleted successfully.");
+        localStorage.removeItem("studentProfile");
+        setShowDeleteModal(false);
+        navigate("/", { replace: true });
+      }
+    } catch (error) {
+      console.error(error);
+      const errMsg = error.response?.data?.message || "Failed to delete account.";
+      toast.error(errMsg);
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
 
   // Editable fields
   const [name, setName] = useState(student.name || "");
@@ -255,7 +296,102 @@ function StudentProfile() {
           )}
         </div>
 
+        {/* Danger Zone */}
+        {!editing && (
+          <>
+            <hr className="my-8 border-slate-200" />
+            <div className="bg-red-50 rounded-2xl p-6 border border-red-100">
+              <h3 className="text-lg font-bold text-red-800 mb-1 flex items-center gap-2">
+                ⚠️ Danger Zone
+              </h3>
+              <p className="text-xs sm:text-sm text-red-600 mb-4 leading-relaxed font-medium">
+                Once you delete your account, there is no going back. All your library bookings, attendance logs, and quiz practice history will be permanently deleted from our database.
+              </p>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold transition text-xs sm:text-sm shadow-md"
+              >
+                Delete My Account
+              </button>
+            </div>
+          </>
+        )}
+
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/60 z-[99999] flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 transition transform hover:scale-[1.01]">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-5 text-3xl text-red-600">
+              🚨
+            </div>
+
+            <h3 className="text-xl sm:text-2xl font-black text-slate-800 mb-2 tracking-tight text-center">
+              Are you absolutely sure?
+            </h3>
+
+            <p className="text-slate-500 font-medium text-xs sm:text-sm leading-relaxed mb-6 text-center">
+              This action <span className="text-red-600 font-bold">cannot</span> be undone. Please confirm by entering your credentials below.
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">
+                  Registered Mobile Number
+                </label>
+                <input
+                  type="tel"
+                  placeholder="Enter mobile number"
+                  value={confirmMobile}
+                  onChange={(e) => setConfirmMobile(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-red-500 focus:outline-none transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">
+                  Type <span className="text-red-600 font-black">DELETE</span> to confirm
+                </label>
+                <input
+                  type="text"
+                  placeholder="DELETE"
+                  value={confirmPhrase}
+                  onChange={(e) => setConfirmPhrase(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-red-500 focus:outline-none transition"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount || confirmPhrase !== "DELETE" || !confirmMobile}
+                className={`flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all shadow-md ${
+                  deletingAccount || confirmPhrase !== "DELETE" || !confirmMobile
+                    ? "bg-red-300 text-white cursor-not-allowed"
+                    : "bg-red-600 hover:bg-red-700 text-white hover:shadow-lg"
+                }`}
+              >
+                {deletingAccount ? "Deleting..." : "Permanently Delete"}
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setConfirmMobile("");
+                  setConfirmPhrase("");
+                }}
+                disabled={deletingAccount}
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3.5 rounded-2xl font-bold text-sm transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

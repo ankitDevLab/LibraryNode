@@ -26,6 +26,11 @@ const studentSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    examPreferences: {
+      banking: {
+        domain: { type: String, default: "" },
+      },
+    },
   },
   {
     timestamps: true,

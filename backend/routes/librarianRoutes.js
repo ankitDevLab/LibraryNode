@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -6,6 +7,10 @@ const router = express.Router();
 
 const Librarian = require("../models/Librarian");
 const Library = require("../models/Library");
+const Seat = require("../models/Seat");
+const Booking = require("../models/Booking");
+const Attendance = require("../models/Attendance");
+const CustomRequest = require("../models/CustomRequest");
 
 // =====================================
 // TEST ROUTE
@@ -319,6 +324,98 @@ router.get("/", async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal Server Error.",
+    });
+  }
+});
+
+// DELETE Librarian Account & Library
+router.delete("/:id", async (req, res) => {
+  try {
+    const { password, confirmation } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid librarian ID.",
+      });
+    }
+
+    if (confirmation !== "DELETE") {
+      return res.status(400).json({
+        success: false,
+        message: "Confirmation phrase must be exactly 'DELETE'.",
+      });
+    }
+
+    const librarian = await Librarian.findById(req.params.id).select("+password");
+    if (!librarian) {
+      return res.status(404).json({
+        success: false,
+        message: "Librarian not found.",
+      });
+    }
+
+    // Verify ownership via password check
+    const isMatch = await bcrypt.compare(password, librarian.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Incorrect password. Cannot delete account.",
+      });
+    }
+
+    const libraryId = librarian.libraryId;
+
+    // Check if the library has any active or pending student bookings
+    if (libraryId) {
+      const activeBookings = await Booking.find({
+        libraryId,
+        status: { $in: ["Pending", "Approved"] },
+      });
+
+      if (activeBookings.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Cannot delete account: Your library currently has active or pending bookings. Please complete or cancel all bookings before deleting your account.",
+        });
+      }
+    }
+
+    console.log(`[LIBRARIAN DELETE] Starting cascade delete for librarian ${librarian.email} and library ${libraryId}`);
+
+    if (libraryId) {
+      // 1. Delete Library
+      await Library.findByIdAndDelete(libraryId);
+
+      // 2. Delete Seats
+      const seatRes = await Seat.deleteMany({ libraryId });
+      console.log(`[LIBRARIAN DELETE] Deleted seats count: ${seatRes.deletedCount}`);
+
+      // 3. Delete Bookings (historical bookings)
+      const bookingRes = await Booking.deleteMany({ libraryId });
+      console.log(`[LIBRARIAN DELETE] Deleted bookings count: ${bookingRes.deletedCount}`);
+
+      // 4. Delete Attendance records
+      const attendanceRes = await Attendance.deleteMany({ libraryId: String(libraryId) });
+      console.log(`[LIBRARIAN DELETE] Deleted attendance count: ${attendanceRes.deletedCount}`);
+
+      // 5. Delete Custom Requests
+      const requestRes = await CustomRequest.deleteMany({ libraryId });
+      console.log(`[LIBRARIAN DELETE] Deleted custom requests count: ${requestRes.deletedCount}`);
+    }
+
+    // 6. Delete Librarian
+    await Librarian.findByIdAndDelete(librarian._id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Librarian account and all associated library records deleted successfully.",
+    });
+  } catch (error) {
+    console.error("❌ [LIBRARIAN DELETE] Error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to delete librarian account.",
     });
   }
 });

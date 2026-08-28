@@ -89,10 +89,10 @@ function StudentLogin() {
         </p>
 
         <input
-  type="tel"
-  placeholder="Mobile Number"
-  value={mobile}
-  onChange={(e) => setMobile(e.target.value)}
+          type="tel"
+          placeholder="Mobile Number"
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value)}
 
           className="w-full border border-slate-300 rounded-xl p-3 mb-4"
         />
@@ -100,11 +100,10 @@ function StudentLogin() {
         <button
           onClick={loginStudent}
           disabled={loading}
-          className={`w-full py-3 rounded-xl text-white font-semibold transition-all ${
-            loading
-              ? "bg-blue-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
+          className={`w-full py-3 rounded-xl text-white font-semibold transition-all ${loading
+            ? "bg-blue-400 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
+            }`}
         >
           {loading ? (
             <>
@@ -202,4 +201,4 @@ function StudentLogin() {
   );
 }
 
-export default StudentLogin;
+export default StudentLogin;

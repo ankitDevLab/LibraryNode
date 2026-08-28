@@ -1,7 +1,19 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 function SupportWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  // Hide the widget from any quiz or PYQ pages onward
+  const hideWidget =
+    location.pathname.startsWith("/quiz") ||
+    location.pathname.includes("-quiz") ||
+    location.pathname.includes("-pyq");
+
+  if (hideWidget) {
+    return null;
+  }
 
   const supportNumber = "917520960847";
   const whatsappUrl = `https://wa.me/${supportNumber}`;

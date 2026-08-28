@@ -267,21 +267,21 @@ function StudentDashboard() {
 
               {/* Exam Cards */}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
 
                 <button
                   onClick={() => navigate("/quiz/ssc")}
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl p-8 transition transform hover:scale-105 shadow-lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl p-6 sm:p-8 transition transform hover:scale-105 shadow-lg"
                 >
-                  <div className="text-5xl mb-4">
+                  <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">
                     🎯
                   </div>
 
-                  <h3 className="text-2xl font-bold">
+                  <h3 className="text-xl sm:text-2xl font-bold">
                     SSC
                   </h3>
 
-                  <p className="mt-2 opacity-90">
+                  <p className="mt-2 opacity-90 text-sm">
                     CGL • CHSL • MTS • GD
                   </p>
 
@@ -289,17 +289,17 @@ function StudentDashboard() {
 
                 <button
                   onClick={() => navigate("/quiz/banking")}
-                  className="bg-green-600 hover:bg-green-700 text-white rounded-2xl p-8 transition transform hover:scale-105 shadow-lg"
+                  className="bg-green-600 hover:bg-green-700 text-white rounded-2xl p-6 sm:p-8 transition transform hover:scale-105 shadow-lg"
                 >
-                  <div className="text-5xl mb-4">
+                  <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">
                     🏦
                   </div>
 
-                  <h3 className="text-2xl font-bold">
+                  <h3 className="text-xl sm:text-2xl font-bold">
                     Banking
                   </h3>
 
-                  <p className="mt-2 opacity-90">
+                  <p className="mt-2 opacity-90 text-sm">
                     SBI • IBPS • RBI
                   </p>
 
@@ -307,18 +307,54 @@ function StudentDashboard() {
 
                 <button
                   onClick={() => navigate("/quiz/upsc")}
-                  className="bg-purple-600 hover:bg-purple-700 text-white rounded-2xl p-8 transition transform hover:scale-105 shadow-lg"
+                  className="bg-purple-600 hover:bg-purple-700 text-white rounded-2xl p-6 sm:p-8 transition transform hover:scale-105 shadow-lg"
                 >
-                  <div className="text-5xl mb-4">
+                  <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">
                     🇮🇳
                   </div>
 
-                  <h3 className="text-2xl font-bold">
+                  <h3 className="text-xl sm:text-2xl font-bold">
                     UPSC
                   </h3>
 
-                  <p className="mt-2 opacity-90">
+                  <p className="mt-2 opacity-90 text-sm">
                     IAS • IPS • IFS
+                  </p>
+
+                </button>
+
+                <button
+                  onClick={() => navigate("/quiz/jee")}
+                  className="bg-orange-600 hover:bg-orange-700 text-white rounded-2xl p-6 sm:p-8 transition transform hover:scale-105 shadow-lg"
+                >
+                  <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">
+                    ⚛️
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-bold">
+                    JEE
+                  </h3>
+
+                  <p className="mt-2 opacity-90 text-sm">
+                    Main • Advanced
+                  </p>
+
+                </button>
+
+                <button
+                  onClick={() => navigate("/quiz/neet")}
+                  className="bg-rose-600 hover:bg-rose-700 text-white rounded-2xl p-6 sm:p-8 transition transform hover:scale-105 shadow-lg"
+                >
+                  <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">
+                    🩺
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-bold">
+                    NEET
+                  </h3>
+
+                  <p className="mt-2 opacity-90 text-sm">
+                    Physics • Chemistry • Biology
                   </p>
 
                 </button>
@@ -334,7 +370,7 @@ function StudentDashboard() {
                 </h3>
 
                 <p className="text-slate-500 mt-2">
-                  Railway • BPSC • Bihar Police • NDA • CDS • CUET • JEE • NEET
+                  Railway • BPSC • Bihar Police • NDA • CDS • CUET
                 </p>
 
               </div>
